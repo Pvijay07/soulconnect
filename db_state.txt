@@ -1,0 +1,7 @@
+﻿=== LISTENER PROFILES ===
+{"userId":"465187a4-039f-451f-934f-a4ac7bb488fd","headline":"fdfd","isApproved":false,"isAvailable":false,"approvalStatus":"pending","status":"offline","voiceRatePerMin":"10.00","expertiseTags":"Relationship Advice","avgRating":"0.00","displayName":"User 8553","phone":"+916303132973","role":"user"}
+{"userId":"3a466b0d-f200-4c81-aaa7-1af0f93920ce","headline":"relationship","isApproved":false,"isAvailable":false,"approvalStatus":"pending","status":"offline","voiceRatePerMin":"10.00","expertiseTags":"Relationship Advice","avgRating":"0.00","displayName":"User 3644","phone":"+91","role":"user"}
+
+Total users: 3
+Total calls: 0
+Total wallets: 3

@@ -1,0 +1,10 @@
+src/modules/auth/strategies/jwt.strategy.ts(9,15): error TS2345: Argument of type '[{ jwtFromRequest: JwtFromRequestFunction<any>; ignoreExpiration: false; secretOrKey: string | undefined; }]' is not assignable to parameter of type '[opt: StrategyOptionsWithRequest] | [opt: StrategyOptionsWithoutRequest]'.
+  Type '[{ jwtFromRequest: JwtFromRequestFunction<any>; ignoreExpiration: false; secretOrKey: string | undefined; }]' is not assignable to type '[opt: StrategyOptionsWithoutRequest]'.
+    Type '{ jwtFromRequest: JwtFromRequestFunction<any>; ignoreExpiration: false; secretOrKey: string | undefined; }' is not assignable to type 'StrategyOptionsWithoutRequest'.
+      Type '{ jwtFromRequest: JwtFromRequestFunction<any>; ignoreExpiration: false; secretOrKey: string | undefined; }' is not assignable to type 'Omit<WithSecretOrKey, "secretOrKeyProvider"> & { passReqToCallback?: false | undefined; }'.
+        Type '{ jwtFromRequest: JwtFromRequestFunction<any>; ignoreExpiration: false; secretOrKey: string | undefined; }' is not assignable to type 'Omit<WithSecretOrKey, "secretOrKeyProvider">'.
+          Types of property 'secretOrKey' are incompatible.
+            Type 'string | undefined' is not assignable to type 'string | Buffer<ArrayBufferLike>'.
+              Type 'undefined' is not assignable to type 'string | Buffer<ArrayBufferLike>'.
+src/modules/calls/media.service.ts(3,24): error TS2307: Cannot find module 'twilio' or its corresponding type declarations.
+src/modules/payments/payments.webhook.controller.ts(16,85): error TS1272: A type referenced in a decorated signature must be imported with 'import type' or a namespace import when 'isolatedModules' and 'emitDecoratorMetadata' are enabled.

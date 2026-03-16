@@ -1,0 +1,1 @@
+{"version":3,"file":"crm.module.js","sourceRoot":"","sources":["../../../../src/modules/crm/crm.module.ts"],"names":[],"mappings":";;;;;;;;;AAAA,2CAAwC;AACxC,+CAA2C;AAC3C,iEAA6D;AAMtD,IAAM,SAAS,GAAf,MAAM,SAAS;CAAI,CAAA;AAAb,8BAAS;oBAAT,SAAS;IAJrB,IAAA,eAAM,EAAC;QACJ,SAAS,EAAE,CAAC,wBAAU,EAAE,0CAAmB,CAAC;QAC5C,OAAO,EAAE,CAAC,wBAAU,EAAE,0CAAmB,CAAC;KAC7C,CAAC;GACW,SAAS,CAAI"}

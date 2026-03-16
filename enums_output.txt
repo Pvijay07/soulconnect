@@ -1,0 +1,10 @@
+﻿calls_calltype_enum: voice, video
+calls_endreason_enum: user_hangup, listener_hangup, balance_exhausted, network_drop, error, timeout
+calls_status_enum: initiating, ringing, connected, active, reconnecting, ended, failed, missed
+messages_messagetype_enum: text, image, voice_note, system
+messages_status_enum: sent, delivered, read
+transactions_category_enum: recharge, call_debit, call_earning, commission, withdrawal, refund, bonus, gift
+transactions_type_enum: credit, debit
+users_authprovider_enum: email, phone, google, apple
+users_role_enum: user, listener, admin
+users_status_enum: active, suspended, banned, deleted

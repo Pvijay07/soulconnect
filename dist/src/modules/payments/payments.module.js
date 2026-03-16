@@ -1,0 +1,36 @@
+"use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.PaymentsModule = void 0;
+const common_1 = require("@nestjs/common");
+const typeorm_1 = require("@nestjs/typeorm");
+const payments_service_1 = require("./payments.service");
+const billing_service_1 = require("./billing.service");
+const payments_controller_1 = require("./payments.controller");
+const payments_webhook_controller_1 = require("./payments.webhook.controller");
+const payment_entity_1 = require("./entities/payment.entity");
+const invoice_entity_1 = require("./entities/invoice.entity");
+const wallet_module_1 = require("../wallet/wallet.module");
+const user_entity_1 = require("../users/entities/user.entity");
+const calls_module_1 = require("../calls/calls.module");
+let PaymentsModule = class PaymentsModule {
+};
+exports.PaymentsModule = PaymentsModule;
+exports.PaymentsModule = PaymentsModule = __decorate([
+    (0, common_1.Module)({
+        imports: [
+            typeorm_1.TypeOrmModule.forFeature([payment_entity_1.Payment, invoice_entity_1.Invoice, user_entity_1.User]),
+            wallet_module_1.WalletModule,
+            calls_module_1.CallsModule,
+        ],
+        providers: [payments_service_1.PaymentsService, billing_service_1.PaymentBillingService],
+        controllers: [payments_controller_1.PaymentsController, payments_webhook_controller_1.PaymentsWebhookController],
+        exports: [payments_service_1.PaymentsService, billing_service_1.PaymentBillingService],
+    })
+], PaymentsModule);
+//# sourceMappingURL=payments.module.js.map

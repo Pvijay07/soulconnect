@@ -1,0 +1,45 @@
+name: Production CI/CD Workflow
+
+on:
+  push:
+    branches: [ main, production ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Run Unit Tests
+        run: npm test
+
+      - name: Build Application
+        run: npm build
+
+      - name: Docker Build & Push
+        env:
+          DOCKER_USER: ${{ secrets.DOCKER_USER }}
+          DOCKER_PASS: ${{ secrets.DOCKER_PASS }}
+        run: |
+          docker build -t soulconnect/api:latest .
+          docker login -u $DOCKER_USER -p $DOCKER_PASS
+          docker push soulconnect/api:latest
+
+      - name: Deploy to K8s
+        env:
+          KUBECONFIG: ${{ secrets.KUBECONFIG }}
+        run: |
+          kubectl apply -f k8s-prod.yaml
+          kubectl rollout status deployment/soulconnect-api

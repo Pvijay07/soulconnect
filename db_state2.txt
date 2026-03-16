@@ -1,0 +1,11 @@
+﻿=== LISTENER PROFILES ===
+{"userId":"465187a4-039f-451f-934f-a4ac7bb488fd","headline":"fdfd","isApproved":true,"isAvailable":true,"approvalStatus":"approved","status":"online","voiceRatePerMin":"10.00","expertiseTags":"Relationship Advice","avgRating":"4.20","displayName":"User 8553","phone":"+916303132973","role":"listener"}
+{"userId":"3a466b0d-f200-4c81-aaa7-1af0f93920ce","headline":"relationship","isApproved":true,"isAvailable":true,"approvalStatus":"approved","status":"online","voiceRatePerMin":"10.00","expertiseTags":"Relationship Advice","avgRating":"4.20","displayName":"User 3644","phone":"+91","role":"listener"}
+{"userId":"c2234239-f12f-4e53-8376-c0660116aa82","headline":"Clinical Psychologist | 10+ years","isApproved":true,"isAvailable":true,"approvalStatus":"approved","status":"online","voiceRatePerMin":"5.00","expertiseTags":"[\"Relationship\",\"Anxiety\"]","avgRating":"3.80","displayName":"Dr. Priya Sharma","phone":"+919876543210","role":"listener"}
+{"userId":"bc18385d-7bc7-4a54-b7bf-a837f3464dce","headline":"Certified Life Coach & Motivational Speaker","isApproved":true,"isAvailable":true,"approvalStatus":"approved","status":"online","voiceRatePerMin":"3.00","expertiseTags":"[\"Career\",\"Motivation\"]","avgRating":"3.50","displayName":"Rahul Verma","phone":"+919876543211","role":"listener"}
+{"userId":"0c63e109-435d-41cb-b85c-1b001d5aed2a","headline":"Relationship Counselor & Therapist","isApproved":true,"isAvailable":true,"approvalStatus":"approved","status":"online","voiceRatePerMin":"4.00","expertiseTags":"[\"Breakup\",\"Relationship\"]","avgRating":"4.00","displayName":"Ananya Singh","phone":"+919876543212","role":"listener"}
+{"userId":"16fa92e4-34ac-47ca-8f49-784b500150e7","headline":"Mental Wellness Expert & Mindfulness Coach","isApproved":true,"isAvailable":true,"approvalStatus":"approved","status":"online","voiceRatePerMin":"7.00","expertiseTags":"[\"Star\",\"Stress\"]","avgRating":"3.70","displayName":"Vikram Patel","phone":"+919876543213","role":"listener"}
+
+Total users: 7
+Total calls: 0
+Total wallets: 7

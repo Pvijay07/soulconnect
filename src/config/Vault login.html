@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vault Login</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --steel:#b8bec7;
+  --steel-dark:#6e7680;
+  --steel-light:#d4dae3;
+  --gold:#c9a84c;
+  --gold-bright:#f0cd7a;
+  --bg:#0e0f11;
+  --vault-face:#1c1f24;
+  --red:#e05252;
+  --green:#52e08a;
+}
+
+body{
+  font-family:'Share Tech Mono',monospace;
+  background:var(--bg);
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+  background-image:
+    radial-gradient(ellipse 80% 60% at 50% 100%, #1a1500 0%, transparent 60%),
+    repeating-linear-gradient(0deg,transparent,transparent 40px,rgba(255,255,255,0.012) 40px,rgba(255,255,255,0.012) 41px),
+    repeating-linear-gradient(90deg,transparent,transparent 40px,rgba(255,255,255,0.012) 40px,rgba(255,255,255,0.012) 41px);
+}
+
+/* ── SCENE ── */
+.scene{
+  position:relative;
+  width:420px;
+  height:420px;
+  perspective:1200px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+/* ── VAULT DOOR (3D flip container) ── */
+.vault-door{
+  position:absolute;
+  width:340px;
+  height:340px;
+  transform-style:preserve-3d;
+  transition:transform 1.2s cubic-bezier(0.4,0,0.2,1);
+  transform-origin:left center;
+  cursor:default;
+  border-radius:12px;
+}
+
+.vault-door.open{
+  transform:rotateY(-110deg);
+}
+
+/* FRONT face */
+.vault-front{
+  position:absolute;
+  inset:0;
+  background:linear-gradient(145deg,#2a2d33 0%,#1c1f24 40%,#252830 100%);
+  border-radius:12px;
+  border:6px solid #3a3f48;
+  box-shadow:
+    0 0 0 2px #0a0b0d,
+    0 0 0 4px #4a5060,
+    8px 8px 40px rgba(0,0,0,0.8),
+    inset 0 1px 0 rgba(255,255,255,0.06);
+  backface-visibility:hidden;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+}
+
+.vault-front::before{
+  content:'';
+  position:absolute;
+  inset:14px;
+  border:2px solid #3a3f4a;
+  border-radius:6px;
+  box-shadow:inset 0 0 30px rgba(0,0,0,0.5);
+}
+
+/* Rivets */
+.rivet{
+  position:absolute;
+  width:12px;
+  height:12px;
+  background:radial-gradient(circle at 35% 35%,#6a7080,#2a2d33);
+  border-radius:50%;
+  border:1px solid #4a5060;
+  box-shadow:0 2px 4px rgba(0,0,0,0.6);
+}
+.rivet:nth-child(1){top:22px;left:22px}
+.rivet:nth-child(2){top:22px;right:22px}
+.rivet:nth-child(3){bottom:22px;left:22px}
+.rivet:nth-child(4){bottom:22px;right:22px}
+
+/* Handle bars */
+.handle-h{
+  position:absolute;
+  right:28px;
+  top:50%;
+  transform:translateY(-50%);
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+}
+.handle-bar{
+  width:18px;
+  height:48px;
+  background:linear-gradient(90deg,#3a3f48,#5a6070,#3a3f48);
+  border-radius:4px;
+  border:1px solid #6a7080;
+  box-shadow:2px 2px 6px rgba(0,0,0,0.5);
+}
+
+/* BACK face (inside of door) */
+.vault-back{
+  position:absolute;
+  inset:0;
+  background:linear-gradient(135deg,#1a1c20,#12141a);
+  border-radius:12px;
+  border:6px solid #2a2d33;
+  backface-visibility:hidden;
+  transform:rotateY(180deg);
+}
+
+/* ── VAULT INTERIOR (behind door) ── */
+.vault-interior{
+  position:absolute;
+  width:340px;
+  height:340px;
+  background:linear-gradient(135deg,#0a0b0d 0%,#111318 100%);
+  border-radius:12px;
+  border:4px solid #1e2128;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  box-shadow:inset 0 0 60px rgba(0,0,0,0.9), 0 0 0 8px #0a0b0d;
+  overflow:hidden;
+  z-index:0;
+}
+
+.vault-interior::before{
+  content:'';
+  position:absolute;
+  inset:0;
+  background:
+    repeating-linear-gradient(90deg,rgba(255,255,255,0.015) 0,rgba(255,255,255,0.015) 1px,transparent 1px,transparent 24px),
+    repeating-linear-gradient(0deg,rgba(255,255,255,0.015) 0,rgba(255,255,255,0.015) 1px,transparent 1px,transparent 24px);
+}
+
+/* ── DIAL ── */
+.dial-wrap{
+  position:absolute;
+  top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:10;
+}
+
+.dial-ring{
+  width:170px;
+  height:170px;
+  border-radius:50%;
+  background:
+    conic-gradient(from 0deg,
+      #3a3f48 0deg, #5a6070 10deg,
+      #3a3f48 20deg, #5a6070 30deg,
+      #3a3f48 40deg, #5a6070 50deg,
+      #3a3f48 60deg, #5a6070 70deg,
+      #3a3f48 80deg, #5a6070 90deg,
+      #3a3f48 100deg, #5a6070 110deg,
+      #3a3f48 120deg, #5a6070 130deg,
+      #3a3f48 140deg, #5a6070 150deg,
+      #3a3f48 160deg, #5a6070 170deg,
+      #3a3f48 180deg, #5a6070 190deg,
+      #3a3f48 200deg, #5a6070 210deg,
+      #3a3f48 220deg, #5a6070 230deg,
+      #3a3f48 240deg, #5a6070 250deg,
+      #3a3f48 260deg, #5a6070 270deg,
+      #3a3f48 280deg, #5a6070 290deg,
+      #3a3f48 300deg, #5a6070 310deg,
+      #3a3f48 320deg, #5a6070 330deg,
+      #3a3f48 340deg, #5a6070 350deg,
+      #3a3f48 360deg
+    );
+  border:4px solid #6a7080;
+  box-shadow:
+    0 0 0 3px #1c1f24,
+    0 0 0 6px #3a3f48,
+    0 8px 30px rgba(0,0,0,0.7),
+    inset 0 0 20px rgba(0,0,0,0.5);
+  position:relative;
+  cursor:grab;
+  transition:box-shadow 0.3s;
+}
+
+.dial-ring:active{cursor:grabbing;}
+
+.dial-ring.unlocked{
+  box-shadow:
+    0 0 0 3px #1c1f24,
+    0 0 0 6px var(--green),
+    0 0 30px rgba(82,224,138,0.4),
+    0 8px 30px rgba(0,0,0,0.7),
+    inset 0 0 20px rgba(0,0,0,0.5);
+}
+
+.dial-center{
+  position:absolute;
+  inset:16px;
+  border-radius:50%;
+  background:radial-gradient(circle at 35% 30%, #4a5060, #1c1f24 60%, #0e0f11);
+  border:2px solid #4a5060;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  box-shadow:inset 0 4px 12px rgba(0,0,0,0.6);
+}
+
+.dial-marker{
+  position:absolute;
+  top:6px;left:50%;
+  transform:translateX(-50%);
+  width:4px;height:16px;
+  background:linear-gradient(180deg,var(--gold-bright),var(--gold));
+  border-radius:2px;
+  box-shadow:0 0 8px rgba(240,205,122,0.6);
+}
+
+.dial-logo{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:13px;
+  color:var(--gold);
+  letter-spacing:0.15em;
+  text-align:center;
+  line-height:1.2;
+  text-shadow:0 0 10px rgba(201,168,76,0.4);
+  pointer-events:none;
+}
+
+/* Pointer triangle at top */
+.dial-pointer{
+  position:absolute;
+  top:-18px;left:50%;
+  transform:translateX(-50%);
+  width:0;height:0;
+  border-left:8px solid transparent;
+  border-right:8px solid transparent;
+  border-top:14px solid var(--gold);
+  filter:drop-shadow(0 0 6px rgba(240,205,122,0.7));
+}
+
+/* Tick numbers around dial */
+.dial-numbers{
+  position:absolute;
+  inset:-36px;
+  border-radius:50%;
+  pointer-events:none;
+}
+
+.dial-num{
+  position:absolute;
+  font-size:9px;
+  color:rgba(180,190,200,0.5);
+  font-family:'Share Tech Mono',monospace;
+  width:20px;
+  text-align:center;
+  transform-origin:10px calc(50% + 54px);
+}
+
+/* ── STATUS DISPLAY ── */
+.status-bar{
+  position:absolute;
+  bottom:28px;left:50%;
+  transform:translateX(-50%);
+  font-size:11px;
+  letter-spacing:0.2em;
+  color:var(--gold);
+  text-transform:uppercase;
+  text-shadow:0 0 10px rgba(240,205,122,0.5);
+  white-space:nowrap;
+  transition:color 0.3s, text-shadow 0.3s;
+}
+
+.status-bar.ok{
+  color:var(--green);
+  text-shadow:0 0 10px rgba(82,224,138,0.6);
+}
+
+/* Combo dots */
+.combo-dots{
+  position:absolute;
+  top:26px;left:50%;
+  transform:translateX(-50%);
+  display:flex;
+  gap:10px;
+}
+
+.cdot{
+  width:10px;height:10px;
+  border-radius:50%;
+  border:1.5px solid var(--steel-dark);
+  background:#0e0f11;
+  transition:background 0.3s, border-color 0.3s, box-shadow 0.3s;
+}
+
+.cdot.filled{
+  background:var(--gold);
+  border-color:var(--gold-bright);
+  box-shadow:0 0 8px rgba(240,205,122,0.7);
+}
+
+.cdot.done{
+  background:var(--green);
+  border-color:var(--green);
+  box-shadow:0 0 8px rgba(82,224,138,0.7);
+}
+
+/* ── LOGIN FORM (inside vault) ── */
+.login-form{
+  position:relative;
+  z-index:5;
+  width:260px;
+  opacity:0;
+  transform:scale(0.85) translateX(30px);
+  transition:opacity 0.6s 0.6s ease, transform 0.6s 0.6s cubic-bezier(0.34,1.4,0.64,1);
+  pointer-events:none;
+}
+
+.login-form.visible{
+  opacity:1;
+  transform:scale(1) translateX(0);
+  pointer-events:all;
+}
+
+.form-title{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:28px;
+  letter-spacing:0.12em;
+  color:var(--gold-bright);
+  text-align:center;
+  margin-bottom:4px;
+  text-shadow:0 0 20px rgba(240,205,122,0.4);
+}
+
+.form-sub{
+  font-size:9px;
+  color:rgba(180,190,200,0.4);
+  text-align:center;
+  letter-spacing:0.2em;
+  margin-bottom:24px;
+}
+
+.f-field{margin-bottom:14px;}
+
+.f-label{
+  display:block;
+  font-size:9px;
+  letter-spacing:0.2em;
+  color:rgba(180,190,200,0.45);
+  margin-bottom:6px;
+}
+
+.f-input{
+  width:100%;
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(180,190,200,0.12);
+  border-radius:5px;
+  padding:10px 12px;
+  color:#d0d8e0;
+  font-family:'Share Tech Mono',monospace;
+  font-size:13px;
+  outline:none;
+  transition:border-color 0.3s,background 0.3s,box-shadow 0.3s;
+}
+
+.f-input::placeholder{color:rgba(180,190,200,0.18);}
+
+.f-input:focus{
+  border-color:rgba(201,168,76,0.45);
+  background:rgba(255,255,255,0.07);
+  box-shadow:0 0 0 3px rgba(201,168,76,0.08);
+}
+
+.f-btn{
+  width:100%;
+  padding:11px;
+  margin-top:8px;
+  background:linear-gradient(135deg,#8a6010,var(--gold),#8a6010);
+  background-size:200% 100%;
+  border:none;
+  border-radius:5px;
+  color:#0e0f11;
+  font-family:'Bebas Neue',sans-serif;
+  font-size:16px;
+  letter-spacing:0.15em;
+  cursor:pointer;
+  transition:background-position 0.4s,box-shadow 0.3s,transform 0.15s;
+  box-shadow:0 4px 18px rgba(201,168,76,0.3);
+}
+
+.f-btn:hover{
+  background-position:100% 0;
+  box-shadow:0 6px 24px rgba(201,168,76,0.5);
+  transform:translateY(-1px);
+}
+
+/* ── AMBIENT PARTICLES ── */
+.sparks{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;}
+
+.spark{
+  position:absolute;
+  border-radius:50%;
+  background:var(--gold);
+  opacity:0;
+  animation:sparkFloat linear infinite;
+}
+
+@keyframes sparkFloat{
+  0%{transform:translateY(0) scale(1);opacity:0}
+  10%{opacity:0.6}
+  90%{opacity:0.1}
+  100%{transform:translateY(-80px) scale(0);opacity:0}
+}
+
+/* ── SHAKE ANIMATION ── */
+@keyframes shake{
+  0%,100%{transform:translateX(0)}
+  20%{transform:translateX(-6px)}
+  40%{transform:translateX(6px)}
+  60%{transform:translateX(-4px)}
+  80%{transform:translateX(4px)}
+}
+
+.shake{animation:shake 0.4s ease;}
+
+/* ── INSTRUCTION ── */
+.instruction{
+  position:absolute;
+  bottom:-52px;left:50%;
+  transform:translateX(-50%);
+  font-size:10px;
+  letter-spacing:0.18em;
+  color:rgba(180,190,200,0.35);
+  white-space:nowrap;
+  text-transform:uppercase;
+  text-align:center;
+  line-height:1.8;
+}
+
+/* Glow ring pulse */
+@keyframes pulse{
+  0%,100%{box-shadow:0 0 0 3px #1c1f24,0 0 0 6px #3a3f48,0 8px 30px rgba(0,0,0,0.7),inset 0 0 20px rgba(0,0,0,0.5)}
+  50%{box-shadow:0 0 0 3px #1c1f24,0 0 0 8px rgba(201,168,76,0.4),0 0 30px rgba(201,168,76,0.15),0 8px 30px rgba(0,0,0,0.7),inset 0 0 20px rgba(0,0,0,0.5)}
+}
+
+.dial-ring.idle{animation:pulse 2.5s infinite ease-in-out;}
+</style>
+</head>
+<body>
+
+<div class="sparks" id="sparks"></div>
+
+<div class="scene">
+  <!-- Interior (behind door) -->
+  <div class="vault-interior">
+    <div class="login-form" id="loginForm">
+      <div class="form-title">Access Vault</div>
+      <div class="form-sub">// AUTHORIZED PERSONNEL ONLY</div>
+      <div class="f-field">
+        <label class="f-label">USER ID</label>
+        <input class="f-input" type="text" placeholder="agent_00x">
+      </div>
+      <div class="f-field">
+        <label class="f-label">PASSKEY</label>
+        <input class="f-input" type="password" placeholder="••••••••••">
+      </div>
+      <button class="f-btn">ENTER VAULT</button>
+    </div>
+  </div>
+
+  <!-- Vault door (3D flip) -->
+  <div class="vault-door" id="vaultDoor">
+    <div class="vault-front">
+      <div class="rivet"></div>
+      <div class="rivet"></div>
+      <div class="rivet"></div>
+      <div class="rivet"></div>
+
+      <!-- Combo progress dots -->
+      <div class="combo-dots">
+        <div class="cdot" id="d0"></div>
+        <div class="cdot" id="d1"></div>
+        <div class="cdot" id="d2"></div>
+      </div>
+
+      <!-- Handle bars -->
+      <div class="handle-h">
+        <div class="handle-bar"></div>
+        <div class="handle-bar"></div>
+        <div class="handle-bar"></div>
+      </div>
+
+      <!-- Dial -->
+      <div class="dial-wrap">
+        <div class="dial-pointer"></div>
+        <div class="dial-ring idle" id="dial">
+          <div class="dial-numbers" id="dialNums"></div>
+          <div class="dial-center">
+            <div class="dial-marker"></div>
+            <div class="dial-logo">VAULT<br>X·1</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Status -->
+      <div class="status-bar" id="statusBar">SPIN TO UNLOCK</div>
+    </div>
+    <div class="vault-back"></div>
+  </div>
+
+  <div class="instruction">Spin the dial · 3 combinations needed</div>
+</div>
+
+<script>
+// Generate dial numbers
+const dialNums = document.getElementById('dialNums');
+for(let i=0;i<12;i++){
+  const num = document.createElement('div');
+  num.className='dial-num';
+  const angle = i*30;
+  const val = (i*5).toString().padStart(2,'0');
+  num.style.cssText=`transform:rotate(${angle}deg) translateY(-68px) rotate(-${angle}deg);left:calc(50% - 10px);top:calc(50% - 54px);`;
+  num.textContent=val;
+  dialNums.appendChild(num);
+}
+
+// Spawn sparks
+const sparksEl=document.getElementById('sparks');
+for(let i=0;i<18;i++){
+  const s=document.createElement('div');
+  s.className='spark';
+  const size=1+Math.random()*3;
+  s.style.cssText=`width:${size}px;height:${size}px;left:${Math.random()*100}%;bottom:${Math.random()*30}%;animation-duration:${4+Math.random()*6}s;animation-delay:${Math.random()*6}s;`;
+  sparksEl.appendChild(s);
+}
+
+const dial=document.getElementById('dial');
+const vaultDoor=document.getElementById('vaultDoor');
+const statusBar=document.getElementById('statusBar');
+const loginForm=document.getElementById('loginForm');
+const dots=[document.getElementById('d0'),document.getElementById('d1'),document.getElementById('d2')];
+
+let angle=0;
+let lastAngle=null;
+let totalRotation=0;
+let step=0; // 0,1,2 = combo stages
+let dragging=false;
+let startMX=0,startMY=0,startAngle=0;
+let unlocked=false;
+
+// Combo: spin right >300deg, then left >300deg, then right >200deg
+const combos=[
+  {dir:1,  needed:320},
+  {dir:-1, needed:320},
+  {dir:1,  needed:220},
+];
+
+function getAngleFromCenter(mx,my){
+  const rect=dial.getBoundingClientRect();
+  const cx=rect.left+rect.width/2;
+  const cy=rect.top+rect.height/2;
+  return Math.atan2(my-cy,mx-cx)*(180/Math.PI);
+}
+
+function onStart(mx,my){
+  if(unlocked)return;
+  dragging=true;
+  startMX=mx;startMY=my;
+  lastAngle=getAngleFromCenter(mx,my);
+  totalRotation=0;
+  dial.classList.remove('idle');
+}
+
+function onMove(mx,my){
+  if(!dragging||unlocked)return;
+  const curr=getAngleFromCenter(mx,my);
+  let delta=curr-lastAngle;
+  // Wrap delta
+  if(delta>180)delta-=360;
+  if(delta<-180)delta+=360;
+  lastAngle=curr;
+  angle+=delta;
+  dial.style.transform=`rotate(${angle}deg)`;
+
+  // Check direction matches combo step
+  const expectedDir=combos[step].dir;
+  if((delta>0&&expectedDir===1)||(delta<0&&expectedDir===-1)){
+    totalRotation+=Math.abs(delta);
+  } else {
+    // Wrong direction — reset step
+    if(Math.abs(delta)>5){
+      totalRotation=0;
+      if(step>0){
+        step=0;
+        dots.forEach(d=>{d.classList.remove('filled','done');});
+        statusBar.textContent='START OVER';
+        setTimeout(()=>statusBar.textContent='SPIN TO UNLOCK',1200);
+      }
+    }
+  }
+}
+
+function onEnd(){
+  if(!dragging||unlocked)return;
+  dragging=false;
+
+  if(totalRotation>=combos[step].needed){
+    // Stage complete
+    dots[step].classList.add(step===2?'done':'filled');
+    step++;
+    totalRotation=0;
+
+    if(step<3){
+      const dirs=['RIGHT','LEFT','RIGHT'];
+      statusBar.textContent=`SPIN ${dirs[step]} ···`;
+    } else {
+      // UNLOCKED!
+      unlock();
+    }
+  } else {
+    // Not enough rotation
+    if(totalRotation>10){
+      dial.classList.remove('idle');
+      dial.classList.add('idle');
+    }
+  }
+}
+
+function unlock(){
+  unlocked=true;
+  dial.classList.remove('idle');
+  dial.classList.add('unlocked');
+  statusBar.classList.add('ok');
+  statusBar.textContent='✓ ACCESS GRANTED';
+
+  // Dramatic pause, then swing door open
+  setTimeout(()=>{
+    vaultDoor.classList.add('open');
+  },600);
+
+  setTimeout(()=>{
+    loginForm.classList.add('visible');
+  },1400);
+}
+
+// Mouse
+dial.addEventListener('mousedown',e=>{onStart(e.clientX,e.clientY);e.preventDefault();});
+window.addEventListener('mousemove',e=>onMove(e.clientX,e.clientY));
+window.addEventListener('mouseup',onEnd);
+
+// Touch
+dial.addEventListener('touchstart',e=>{onStart(e.touches[0].clientX,e.touches[0].clientY);e.preventDefault();},{passive:false});
+window.addEventListener('touchmove',e=>{if(dragging)onMove(e.touches[0].clientX,e.touches[0].clientY);});
+window.addEventListener('touchend',onEnd);
+
+// Init status
+statusBar.textContent='SPIN RIGHT ···';
+</script>
+</body>
+</html>

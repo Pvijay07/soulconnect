@@ -1,0 +1,31 @@
+import { User } from '../../users/entities/user.entity';
+export declare class ListenerProfile {
+    id: string;
+    userId: string;
+    headline: string;
+    description: string;
+    expertiseTags: string[];
+    languages: string[];
+    voiceRatePerMin: number;
+    videoRatePerMin: number;
+    chatRatePerMin: number;
+    isAvailable: boolean;
+    status: string;
+    isVerified: boolean;
+    isApproved: boolean;
+    approvalStatus: string;
+    totalCalls: number;
+    totalMinutes: number;
+    avgRating: number;
+    totalRatings: number;
+    totalEarnings: number;
+    createdAt: Date;
+    identityDocUrl: string;
+    certificateUrl: string;
+    introVideoUrl: string;
+    rejectionReason: string;
+    gender: string;
+    age: number;
+    updatedAt: Date;
+    user: User;
+}

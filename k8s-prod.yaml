@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: soulconnect-api
+  namespace: prod
+spec:
+  replicas: 10 # Scalar fleet for high concurrent load
+  selector:
+    matchLabels:
+      app: soulconnect-api
+  template:
+    metadata:
+      labels:
+        app: soulconnect-api
+    spec:
+      containers:
+      - name: api
+        image: gcr.io/soulconnect/api:latest
+        ports:
+        - containerPort: 3000
+        resources:
+          limits:
+            cpu: "2"
+            memory: "4Gi"
+          requests:
+            cpu: "1"
+            memory: "2Gi"
+        env:
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: db-secret
+              key: url
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: soulconnect-svc
+spec:
+  selector:
+    app: soulconnect-api
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 3000
+  type: LoadBalancer
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: soulconnect-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: soulconnect-api
+  minReplicas: 3
+  maxReplicas: 50
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
