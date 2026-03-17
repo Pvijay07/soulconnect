@@ -1,17 +1,17 @@
-# Builder Stage
 FROM node:18-alpine AS builder
 
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm ci
+
+RUN npm install
 
 COPY . .
 
-RUN npx nest build
+RUN chmod +x ./node_modules/.bin/nest
+RUN npm run build
 
 
-# Production Stage
 FROM node:18-alpine
 
 WORKDIR /app
