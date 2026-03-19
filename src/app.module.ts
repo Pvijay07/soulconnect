@@ -45,11 +45,14 @@ import { AdminModule } from './modules/admin/admin.module';
       imports: [ConfigModule],
       useFactory: (config: ConfigService) => ({
         type: 'postgres',
-        host: config.get<string>('database.host'),
-        port: config.get<number>('database.port'),
-        username: config.get<string>('database.username'),
-        password: config.get<string>('database.password'),
-        database: config.get<string>('database.name'),
+        host: process.env.DB_HOST,
+        port: Number(process.env.DB_PORT),
+        username: process.env.DB_USER,
+        password: process.env.DB_PASS,
+        database: process.env.DB_NAME,
+        ssl: {
+          rejectUnauthorized: false,
+        },
         entities: [
           User, Profile, Interest, Rating, Report, BlockedUser,
           ListenerProfile, Conversation, Message, Call, CallLog,
