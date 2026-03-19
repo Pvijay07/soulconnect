@@ -59,8 +59,12 @@ export class ListenersService {
         return { items, total, hasNext: page * limit < total };
     }
 
-    async approveListener(userId: string) {
-        const profile = await this.listenerRepo.findOne({ where: { userId } });
+    async approveListener(id: string) {
+        // Try finding by userId first, then by profile primary key
+        let profile = await this.listenerRepo.findOne({ where: { userId: id } });
+        if (!profile) {
+            profile = await this.listenerRepo.findOne({ where: { id } });
+        }
         if (!profile) throw new NotFoundException('Listener profile not found');
 
         profile.approvalStatus = 'approved';
@@ -69,13 +73,17 @@ export class ListenersService {
         await this.listenerRepo.save(profile);
 
         // Update user role to LISTENER
-        await this.userRepo.update(userId, { role: UserRole.LISTENER });
+        await this.userRepo.update(profile.userId, { role: UserRole.LISTENER });
 
         return profile;
     }
 
-    async rejectListener(userId: string, reason: string) {
-        const profile = await this.listenerRepo.findOne({ where: { userId } });
+    async rejectListener(id: string, reason: string) {
+        // Try finding by userId first, then by profile primary key
+        let profile = await this.listenerRepo.findOne({ where: { userId: id } });
+        if (!profile) {
+            profile = await this.listenerRepo.findOne({ where: { id } });
+        }
         if (!profile) throw new NotFoundException('Listener profile not found');
 
         profile.approvalStatus = 'rejected';

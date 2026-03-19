@@ -15,8 +15,8 @@ export declare class ListenersService {
         total: number;
         hasNext: boolean;
     }>;
-    approveListener(userId: string): Promise<ListenerProfile>;
-    rejectListener(userId: string, reason: string): Promise<ListenerProfile>;
+    approveListener(id: string): Promise<ListenerProfile>;
+    rejectListener(id: string, reason: string): Promise<ListenerProfile>;
     browse(filters: {
         category?: string;
         language?: string;

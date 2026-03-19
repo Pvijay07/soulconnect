@@ -25,6 +25,9 @@ let AdminController = class AdminController {
         this.adminService = adminService;
         this.listenersService = listenersService;
     }
+    async getAllUsers(page = 1, limit = 20, search) {
+        return { data: await this.adminService.getAllUsers(+page, +limit, search) };
+    }
     async getDashboard() {
         return { data: await this.adminService.getDashboardStats() };
     }
@@ -57,6 +60,18 @@ let AdminController = class AdminController {
     }
 };
 exports.AdminController = AdminController;
+__decorate([
+    (0, common_1.Get)('users'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiOperation)({ summary: 'Get all users (admin)' }),
+    __param(0, (0, common_1.Query)('page')),
+    __param(1, (0, common_1.Query)('limit')),
+    __param(2, (0, common_1.Query)('search')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Object, String]),
+    __metadata("design:returntype", Promise)
+], AdminController.prototype, "getAllUsers", null);
 __decorate([
     (0, common_1.Get)('dashboard'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),

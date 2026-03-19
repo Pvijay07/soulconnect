@@ -36,4 +36,21 @@ export declare class AdminService {
         total: number;
         hasNext: boolean;
     }>;
+    getAllUsers(page?: number, limit?: number, search?: string): Promise<{
+        items: {
+            id: string;
+            email: string;
+            phone: string;
+            role: import("../users/entities/user.entity").UserRole;
+            status: import("../users/entities/user.entity").UserStatus;
+            isAnonymous: boolean;
+            createdAt: Date;
+            lastLoginAt: Date;
+            displayName: any;
+            avatarUrl: any;
+            walletBalance: any;
+        }[];
+        total: number;
+        hasNext: boolean;
+    }>;
 }

@@ -12,6 +12,16 @@ export class AdminController {
         private readonly listenersService: ListenersService,
     ) { }
 
+    // ─── Users ────────────────────────────────────────────────
+
+    @Get('users')
+    @UseGuards(JwtAuthGuard)
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Get all users (admin)' })
+    async getAllUsers(@Query('page') page = 1, @Query('limit') limit = 20, @Query('search') search?: string) {
+        return { data: await this.adminService.getAllUsers(+page, +limit, search) };
+    }
+
     // ─── Dashboard ──────────────────────────────────────────────
 
     @Get('dashboard')

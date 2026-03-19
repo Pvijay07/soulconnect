@@ -67,19 +67,25 @@ let ListenersService = class ListenersService {
         });
         return { items, total, hasNext: page * limit < total };
     }
-    async approveListener(userId) {
-        const profile = await this.listenerRepo.findOne({ where: { userId } });
+    async approveListener(id) {
+        let profile = await this.listenerRepo.findOne({ where: { userId: id } });
+        if (!profile) {
+            profile = await this.listenerRepo.findOne({ where: { id } });
+        }
         if (!profile)
             throw new common_1.NotFoundException('Listener profile not found');
         profile.approvalStatus = 'approved';
         profile.isApproved = true;
         profile.isVerified = true;
         await this.listenerRepo.save(profile);
-        await this.userRepo.update(userId, { role: user_entity_1.UserRole.LISTENER });
+        await this.userRepo.update(profile.userId, { role: user_entity_1.UserRole.LISTENER });
         return profile;
     }
-    async rejectListener(userId, reason) {
-        const profile = await this.listenerRepo.findOne({ where: { userId } });
+    async rejectListener(id, reason) {
+        let profile = await this.listenerRepo.findOne({ where: { userId: id } });
+        if (!profile) {
+            profile = await this.listenerRepo.findOne({ where: { id } });
+        }
         if (!profile)
             throw new common_1.NotFoundException('Listener profile not found');
         profile.approvalStatus = 'rejected';

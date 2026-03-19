@@ -106,4 +106,44 @@ export class AdminService {
         });
         return { items, total, hasNext: page * limit < total };
     }
+
+    // ─── Users Management ────────────────────────────────────────
+
+    async getAllUsers(page = 1, limit = 20, search?: string) {
+        const qb = this.userRepo
+            .createQueryBuilder('user')
+            .leftJoinAndSelect('user.profile', 'profile')
+            .leftJoinAndSelect('user.wallet', 'wallet')
+            .orderBy('user.createdAt', 'DESC');
+
+        if (search) {
+            qb.where(
+                '(user.email ILIKE :search OR user.phone ILIKE :search OR profile.displayName ILIKE :search)',
+                { search: `%${search}%` },
+            );
+        }
+
+        const [items, total] = await qb
+            .skip((page - 1) * limit)
+            .take(limit)
+            .getManyAndCount();
+
+        return {
+            items: items.map(u => ({
+                id: u.id,
+                email: u.email,
+                phone: u.phone,
+                role: u.role,
+                status: u.status,
+                isAnonymous: u.isAnonymous,
+                createdAt: u.createdAt,
+                lastLoginAt: u.lastLoginAt,
+                displayName: u.profile?.displayName,
+                avatarUrl: u.profile?.avatarUrl,
+                walletBalance: u.wallet?.balance ?? 0,
+            })),
+            total,
+            hasNext: page * limit < total,
+        };
+    }
 }
