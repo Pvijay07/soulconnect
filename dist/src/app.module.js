@@ -53,13 +53,14 @@ exports.AppModule = AppModule = __decorate([
             }),
             typeorm_1.TypeOrmModule.forRootAsync({
                 imports: [config_1.ConfigModule],
-                useFactory: (config) => ({
+                useFactory: () => ({
                     type: 'postgres',
-                    host: config.get('database.host'),
-                    port: config.get('database.port'),
-                    username: config.get('database.username'),
-                    password: config.get('database.password'),
-                    database: config.get('database.name'),
+                    host: process.env.DB_HOST,
+                    port: Number(process.env.DB_PORT),
+                    username: process.env.DB_USER,
+                    password: process.env.DB_PASS,
+                    database: process.env.DB_NAME,
+
                     ssl: {
                         rejectUnauthorized: false,
                     },
