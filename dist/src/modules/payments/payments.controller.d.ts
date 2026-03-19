@@ -7,11 +7,13 @@ export declare class PaymentsController {
         gateway: string;
     }): Promise<{
         data: {
+            id: string;
             paymentId: string;
             amount: number;
+            amount_inr: number;
             currency: string;
             status: string;
-            mockOrder: string;
+            gateway: string;
         };
     }>;
     verifyMock(req: any, dto: {

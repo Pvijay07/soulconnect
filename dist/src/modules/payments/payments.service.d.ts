@@ -8,11 +8,13 @@ export declare class PaymentsService {
     private readonly callsGateway;
     constructor(paymentRepo: Repository<Payment>, walletService: WalletService, callsGateway: CallsGateway);
     createRechargeIntent(userId: string, amount: number, gateway: string): Promise<{
+        id: string;
         paymentId: string;
         amount: number;
+        amount_inr: number;
         currency: string;
         status: string;
-        mockOrder: string;
+        gateway: string;
     }>;
     verifyMockPayment(userId: string, paymentId: string): Promise<Payment>;
 }

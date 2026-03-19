@@ -21,16 +21,27 @@ async function bootstrap() {
 
   app.setGlobalPrefix('api');
 
-  // CORS - restrict in production
-  const isProduction = process.env.NODE_ENV === 'production';
+  // CORS - allow admin panel and app origins
+  const allowedOrigins = [
+    process.env.ADMIN_URL || 'https://admin.soulconnect.in',
+    process.env.APP_URL || 'https://app.soulconnect.in',
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://localhost:5173',
+  ];
   app.enableCors({
-    origin: isProduction
-      ? [process.env.ADMIN_URL || 'https://admin.soulconnect.in', process.env.APP_URL || 'https://app.soulconnect.in']
-      : true,
+    origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+      // Allow requests with no origin (mobile apps, Postman, curl)
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) return callback(null, true);
+      callback(null, false);
+    },
     credentials: true,
   });
 
+
   // Swagger API Docs (disable in production for security)
+  const isProduction = process.env.NODE_ENV === 'production';
   if (!isProduction) {
     const config = new DocumentBuilder()
       .setTitle('SoulConnect API')

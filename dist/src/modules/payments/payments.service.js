@@ -39,12 +39,15 @@ let PaymentsService = class PaymentsService {
             status: 'pending',
         });
         await this.paymentRepo.save(payment);
+        const orderId = `order_${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
         return {
+            id: orderId,
             paymentId: payment.id,
-            amount,
+            amount: amount * 100,
+            amount_inr: amount,
             currency: 'INR',
-            status: 'pending',
-            mockOrder: `order_${Math.random().toString(36).substr(2, 9)}`,
+            status: 'created',
+            gateway,
         };
     }
     async verifyMockPayment(userId, paymentId) {
