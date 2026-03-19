@@ -60,6 +60,9 @@ exports.AppModule = AppModule = __decorate([
                     username: config.get('database.username'),
                     password: config.get('database.password'),
                     database: config.get('database.name'),
+                    ssl: {
+                        rejectUnauthorized: false,
+                    },
                     entities: [
                         user_entity_1.User, profile_entity_1.Profile, interest_entity_1.Interest, social_entity_1.Rating, social_entity_1.Report, social_entity_1.BlockedUser,
                         listener_profile_entity_1.ListenerProfile, conversation_entity_1.Conversation, message_entity_1.Message, call_entity_1.Call, call_entity_1.CallLog,
