@@ -28,8 +28,12 @@ export class ListenersController {
         @Query('sort') sort?: string,
         @Query('page') page?: number,
         @Query('limit') limit?: number,
+        @Query('name') name?: string,
+        @Query('city') city?: string,
+        @Query('minAge') minAge?: number,
+        @Query('maxAge') maxAge?: number,
     ) {
-        return { data: await this.listenersService.browse({ category, language, minRating, maxRate, sort, page, limit }) };
+        return { data: await this.listenersService.browse({ category, language, minRating, maxRate, sort, page, limit, name, city, minAge, maxAge }) };
     }
 
     @Get('me/earnings')

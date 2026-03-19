@@ -84,6 +84,12 @@ export class ListenerProfile {
     @Column({ type: 'int', nullable: true })
     age: number;
 
+    @Column({ type: 'varchar', length: 100, nullable: true })
+    city: string;
+
+    @Column({ type: 'varchar', length: 500, nullable: true })
+    uploadedAvatarUrl: string;
+
     @UpdateDateColumn({ type: 'timestamptz' })
     updatedAt: Date;
 
