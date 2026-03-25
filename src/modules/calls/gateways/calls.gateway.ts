@@ -61,9 +61,10 @@ export class CallsGateway implements OnGatewayConnection, OnGatewayDisconnect {
             callerId,
             type: data.type,
             offer: data.offer,
+            ratePerMin: call.ratePerMin,
         });
 
-        return { callId: call.id };
+        return { callId: call.id, ratePerMin: call.ratePerMin };
     }
 
     @SubscribeMessage('call:accept')

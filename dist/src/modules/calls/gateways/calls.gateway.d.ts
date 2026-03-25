@@ -19,6 +19,7 @@ export declare class CallsGateway implements OnGatewayConnection, OnGatewayDisco
         offer: any;
     }): Promise<{
         callId: string;
+        ratePerMin: number;
     }>;
     handleAcceptCall(client: Socket, data: {
         callId: string;

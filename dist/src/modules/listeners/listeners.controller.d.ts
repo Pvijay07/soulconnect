@@ -5,7 +5,7 @@ export declare class ListenersController {
     apply(req: any, dto: any): Promise<{
         data: import("./entities/listener-profile.entity").ListenerProfile;
     }>;
-    browse(category?: string, language?: string, minRating?: number, maxRate?: number, sort?: string, page?: number, limit?: number): Promise<{
+    browse(category?: string, language?: string, minRating?: number, maxRate?: number, sort?: string, page?: number, limit?: number, name?: string, city?: string, minAge?: number, maxAge?: number): Promise<{
         data: {
             listeners: {
                 id: string;
@@ -15,6 +15,8 @@ export declare class ListenersController {
                 expertiseTags: string[];
                 voiceRatePerMin: number;
                 videoRatePerMin: number;
+                age: number;
+                city: string;
                 avgRating: number;
                 totalRatings: number;
                 isAvailable: boolean;
@@ -82,6 +84,8 @@ export declare class ListenersController {
             rejectionReason: string;
             gender: string;
             age: number;
+            city: string;
+            uploadedAvatarUrl: string;
             updatedAt: Date;
             user: import("../users/entities/user.entity").User;
         };

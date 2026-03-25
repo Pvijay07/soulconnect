@@ -49,6 +49,8 @@ let ListenersService = class ListenersService {
             videoRatePerMin: data.videoRatePerMin || 20,
             gender: data.gender,
             age: data.age,
+            city: data.city,
+            uploadedAvatarUrl: data.uploadedAvatarUrl,
             identityDocUrl: data.identityDocUrl,
             certificateUrl: data.certificateUrl,
             introVideoUrl: data.introVideoUrl,
@@ -113,6 +115,18 @@ let ListenersService = class ListenersService {
         if (filters.category) {
             qb.andWhere('lp.expertiseTags LIKE :cat', { cat: `%${filters.category}%` });
         }
+        if (filters.name) {
+            qb.andWhere('profile.displayName ILIKE :name', { name: `%${filters.name}%` });
+        }
+        if (filters.city) {
+            qb.andWhere('lp.city ILIKE :city', { city: `%${filters.city}%` });
+        }
+        if (filters.minAge) {
+            qb.andWhere('lp.age >= :minAge', { minAge: filters.minAge });
+        }
+        if (filters.maxAge) {
+            qb.andWhere('lp.age <= :maxAge', { maxAge: filters.maxAge });
+        }
         switch (filters.sort) {
             case 'rating':
                 qb.orderBy('lp.avgRating', 'DESC');
@@ -136,11 +150,13 @@ let ListenersService = class ListenersService {
             listeners: listeners.map(lp => ({
                 id: lp.userId,
                 displayName: lp.user?.profile?.displayName,
-                avatarUrl: lp.user?.profile?.avatarUrl,
+                avatarUrl: lp.uploadedAvatarUrl || lp.user?.profile?.avatarUrl,
                 headline: lp.headline,
                 expertiseTags: lp.expertiseTags,
                 voiceRatePerMin: lp.voiceRatePerMin,
                 videoRatePerMin: lp.videoRatePerMin,
+                age: lp.age,
+                city: lp.city,
                 avgRating: lp.avgRating,
                 totalRatings: lp.totalRatings,
                 isAvailable: lp.isAvailable,

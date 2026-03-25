@@ -41,61 +41,31 @@ export class CallBillingService implements OnModuleInit, OnModuleDestroy {
 
         for (const call of activeCalls) {
             try {
-                if (!call.lastBilledAt) continue;
+                if (!call.startedAt) continue;
 
-                const diffMs = now.getTime() - call.lastBilledAt.getTime();
-                const diffSecs = Math.floor(diffMs / 1000);
-                if (diffSecs < 1) continue;
-
+                const durationSecs = Math.floor((now.getTime() - call.startedAt.getTime()) / 1000);
                 const perSec = Number(call.ratePerMin) / 60.0;
+                const costSoFar = durationSecs * perSec;
+
                 const wallet = await this.walletService.getWallet(call.callerId);
 
-                const amountDue = perSec * diffSecs;
-
-                if (Number(wallet.balance) < amountDue) {
-                    // calculate affordable seconds
-                    const affordableSecs = Math.floor(Number(wallet.balance) / perSec);
-                    if (affordableSecs > 0) {
-                        const amt = perSec * affordableSecs;
-                        await this.walletService.debitWallet(
-                            call.callerId,
-                            amt,
-                            TransactionCategory.CALL_DEBIT,
-                            call.id,
-                            `Billing for ${affordableSecs} seconds of call ${call.id}`,
-                        );
-                        // advance lastBilledAt by affordableSecs
-                        call.lastBilledAt = new Date(call.lastBilledAt.getTime() + affordableSecs * 1000);
-                        await this.callRepo.save(call);
-                    }
-
+                // If running cost exhausts balance, end call
+                if (Number(wallet.balance) <= costSoFar) {
                     this.logger.log(`Ending call ${call.id} due to insufficient balance`);
-                    // Inform participants
+                    
                     this.callsGateway.server.to(`user_${call.callerId}`).emit('call:wallet_empty', { callId: call.id });
                     this.callsGateway.server.to(`user_${call.calleeId}`).emit('call:wallet_empty', { callId: call.id });
 
-                    // End call via CallsService to finalize records and credit listener
+                    // End call via CallsService (this will perform the final exact deduction)
                     await this.callsService.endCall(call.id, CallEndReason.BALANCE_EXHAUSTED);
                 } else {
-                    // Debit full amountDue
-                    await this.walletService.debitWallet(
-                        call.callerId,
-                        amountDue,
-                        TransactionCategory.CALL_DEBIT,
-                        call.id,
-                        `Billing for ${diffSecs} seconds of call ${call.id}`,
-                    );
-
-                    // advance lastBilledAt
-                    call.lastBilledAt = new Date(call.lastBilledAt.getTime() + diffSecs * 1000);
-                    await this.callRepo.save(call);
-
-                    this.logger.log(`Billed ${diffSecs}s for call ${call.id} amount ${amountDue}`);
-
-                    // Inform user of new balance
-                    this.callsGateway.server.to(`user_${call.callerId}`).emit('wallet:update', {
-                        balance: Number((await this.walletService.getWallet(call.callerId)).balance),
-                    });
+                    // Update remaining balance virtually if frontend supports it, but skip heavy DB writes.
+                    const approxRemaining = Math.max(0, Number(wallet.balance) - costSoFar);
+                    if (durationSecs % 5 === 0) { // Emit every 5 seconds to reduce socket load
+                        this.callsGateway.server.to(`user_${call.callerId}`).emit('wallet:update', {
+                            balance: approxRemaining,
+                        });
+                    }
                 }
             } catch (error) {
                 this.logger.error(`Error processing billing for call ${call.id}: ${error.message}`);

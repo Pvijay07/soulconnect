@@ -50,9 +50,11 @@ import { AdminModule } from './modules/admin/admin.module';
         username: process.env.DB_USER,
         password: process.env.DB_PASS,
         database: process.env.DB_NAME,
-        ssl: {
-          rejectUnauthorized: false,
-        },
+        ...(process.env.DB_HOST !== 'localhost' && {
+          ssl: {
+            rejectUnauthorized: false,
+          },
+        }),
         entities: [
           User, Profile, Interest, Rating, Report, BlockedUser,
           ListenerProfile, Conversation, Message, Call, CallLog,

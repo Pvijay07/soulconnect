@@ -26,6 +26,8 @@ export declare class ListenerProfile {
     rejectionReason: string;
     gender: string;
     age: number;
+    city: string;
+    uploadedAvatarUrl: string;
     updatedAt: Date;
     user: User;
 }

@@ -25,8 +25,8 @@ let ListenersController = class ListenersController {
     async apply(req, dto) {
         return { data: await this.listenersService.apply(req.user.sub, dto) };
     }
-    async browse(category, language, minRating, maxRate, sort, page, limit) {
-        return { data: await this.listenersService.browse({ category, language, minRating, maxRate, sort, page, limit }) };
+    async browse(category, language, minRating, maxRate, sort, page, limit, name, city, minAge, maxAge) {
+        return { data: await this.listenersService.browse({ category, language, minRating, maxRate, sort, page, limit, name, city, minAge, maxAge }) };
     }
     async getEarnings(req) {
         return { data: await this.listenersService.getEarnings(req.user.sub) };
@@ -77,8 +77,12 @@ __decorate([
     __param(4, (0, common_1.Query)('sort')),
     __param(5, (0, common_1.Query)('page')),
     __param(6, (0, common_1.Query)('limit')),
+    __param(7, (0, common_1.Query)('name')),
+    __param(8, (0, common_1.Query)('city')),
+    __param(9, (0, common_1.Query)('minAge')),
+    __param(10, (0, common_1.Query)('maxAge')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String, Number, Number, String, Number, Number]),
+    __metadata("design:paramtypes", [String, String, Number, Number, String, Number, Number, String, String, Number, Number]),
     __metadata("design:returntype", Promise)
 ], ListenersController.prototype, "browse", null);
 __decorate([

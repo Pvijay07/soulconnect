@@ -84,7 +84,6 @@ let CallsService = class CallsService {
         call.startedAt = new Date();
         call.lastBilledAt = call.connectedAt;
         await this.callRepo.save(call);
-        await this.walletService.debitWallet(call.callerId, Number(call.ratePerMin), transaction_entity_1.TransactionCategory.CALL_DEBIT, call.id, `Initial minute for call ${call.id}`);
         return call;
     }
     async endCall(callId, reason) {
@@ -93,10 +92,13 @@ let CallsService = class CallsService {
             return;
         const endedAt = new Date();
         const durationSecs = Math.floor((endedAt.getTime() - call.startedAt.getTime()) / 1000);
-        const durationMins = Math.max(1, Math.ceil(durationSecs / 60));
+        const durationMins = durationSecs / 60.0;
         const totalBilled = durationMins * Number(call.ratePerMin);
         const commission = totalBilled * 0.3;
         const listenerEarned = totalBilled - commission;
+        if (totalBilled > 0) {
+            await this.walletService.debitWallet(call.callerId, totalBilled, transaction_entity_1.TransactionCategory.CALL_DEBIT, call.id, `Call charged for exact duration: ${durationSecs} sec`);
+        }
         call.status = call_entity_1.CallStatus.ENDED;
         call.endedAt = endedAt;
         call.durationSecs = durationSecs;

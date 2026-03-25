@@ -39,6 +39,8 @@ let ListenerProfile = class ListenerProfile {
     rejectionReason;
     gender;
     age;
+    city;
+    uploadedAvatarUrl;
     updatedAt;
     user;
 };
@@ -147,6 +149,14 @@ __decorate([
     (0, typeorm_1.Column)({ type: 'int', nullable: true }),
     __metadata("design:type", Number)
 ], ListenerProfile.prototype, "age", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'varchar', length: 100, nullable: true }),
+    __metadata("design:type", String)
+], ListenerProfile.prototype, "city", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'varchar', length: 500, nullable: true }),
+    __metadata("design:type", String)
+], ListenerProfile.prototype, "uploadedAvatarUrl", void 0);
 __decorate([
     (0, typeorm_1.UpdateDateColumn)({ type: 'timestamptz' }),
     __metadata("design:type", Date)

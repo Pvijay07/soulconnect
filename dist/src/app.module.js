@@ -60,9 +60,11 @@ exports.AppModule = AppModule = __decorate([
                     username: process.env.DB_USER,
                     password: process.env.DB_PASS,
                     database: process.env.DB_NAME,
-                    ssl: {
-                        rejectUnauthorized: false,
-                    },
+                    ...(process.env.DB_HOST !== 'localhost' && {
+                        ssl: {
+                            rejectUnauthorized: false,
+                        },
+                    }),
                     entities: [
                         user_entity_1.User, profile_entity_1.Profile, interest_entity_1.Interest, social_entity_1.Rating, social_entity_1.Report, social_entity_1.BlockedUser,
                         listener_profile_entity_1.ListenerProfile, conversation_entity_1.Conversation, message_entity_1.Message, call_entity_1.Call, call_entity_1.CallLog,

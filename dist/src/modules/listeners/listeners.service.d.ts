@@ -25,6 +25,10 @@ export declare class ListenersService {
         sort?: string;
         page?: number;
         limit?: number;
+        name?: string;
+        city?: string;
+        minAge?: number;
+        maxAge?: number;
     }): Promise<{
         listeners: {
             id: string;
@@ -34,6 +38,8 @@ export declare class ListenersService {
             expertiseTags: string[];
             voiceRatePerMin: number;
             videoRatePerMin: number;
+            age: number;
+            city: string;
             avgRating: number;
             totalRatings: number;
             isAvailable: boolean;
@@ -81,6 +87,8 @@ export declare class ListenersService {
         rejectionReason: string;
         gender: string;
         age: number;
+        city: string;
+        uploadedAvatarUrl: string;
         updatedAt: Date;
         user: User;
     }>;

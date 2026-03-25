@@ -84,15 +84,6 @@ export class CallsService {
         call.lastBilledAt = call.connectedAt;
         await this.callRepo.save(call);
 
-        // Deduct first minute
-        await this.walletService.debitWallet(
-            call.callerId,
-            Number(call.ratePerMin),
-            TransactionCategory.CALL_DEBIT,
-            call.id,
-            `Initial minute for call ${call.id}`,
-        );
-
         return call;
     }
 
@@ -102,13 +93,24 @@ export class CallsService {
 
         const endedAt = new Date();
         const durationSecs = Math.floor((endedAt.getTime() - call.startedAt.getTime()) / 1000);
-        const durationMins = Math.max(1, Math.ceil(durationSecs / 60));
+        // Calculate exact minutes as floating point for accurate seconds deduction
+        const durationMins = durationSecs / 60.0;
 
-        // Note: Wallet debit happened per-minute during the call.
-        // We ensure call.totalBilled reflects the actual number of minutes charged.
+        // One-time precise deduction based on exactly how many seconds were used
         const totalBilled = durationMins * Number(call.ratePerMin);
         const commission = totalBilled * 0.3; // 30% commission
         const listenerEarned = totalBilled - commission;
+
+        // Perform the exact deduction from the caller's wallet
+        if (totalBilled > 0) {
+            await this.walletService.debitWallet(
+                call.callerId,
+                totalBilled,
+                TransactionCategory.CALL_DEBIT,
+                call.id,
+                `Call charged for exact duration: ${durationSecs} sec`,
+            );
+        }
 
         call.status = CallStatus.ENDED;
         call.endedAt = endedAt;

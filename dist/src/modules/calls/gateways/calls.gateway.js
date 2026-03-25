@@ -56,8 +56,9 @@ let CallsGateway = class CallsGateway {
             callerId,
             type: data.type,
             offer: data.offer,
+            ratePerMin: call.ratePerMin,
         });
-        return { callId: call.id };
+        return { callId: call.id, ratePerMin: call.ratePerMin };
     }
     async handleAcceptCall(client, data) {
         const call = await this.callsService.connectCall(data.callId);

@@ -19,7 +19,6 @@ const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
 const call_entity_1 = require("./entities/call.entity");
 const wallet_service_1 = require("../wallet/wallet.service");
-const transaction_entity_1 = require("../wallet/entities/transaction.entity");
 const calls_gateway_1 = require("./gateways/calls.gateway");
 const calls_service_1 = require("./calls.service");
 let CallBillingService = CallBillingService_1 = class CallBillingService {
@@ -50,36 +49,25 @@ let CallBillingService = CallBillingService_1 = class CallBillingService {
         const now = new Date();
         for (const call of activeCalls) {
             try {
-                if (!call.lastBilledAt)
+                if (!call.startedAt)
                     continue;
-                const diffMs = now.getTime() - call.lastBilledAt.getTime();
-                const diffSecs = Math.floor(diffMs / 1000);
-                if (diffSecs < 1)
-                    continue;
+                const durationSecs = Math.floor((now.getTime() - call.startedAt.getTime()) / 1000);
                 const perSec = Number(call.ratePerMin) / 60.0;
+                const costSoFar = durationSecs * perSec;
                 const wallet = await this.walletService.getWallet(call.callerId);
-                const amountDue = perSec * diffSecs;
-                if (Number(wallet.balance) < amountDue) {
-                    const affordableSecs = Math.floor(Number(wallet.balance) / perSec);
-                    if (affordableSecs > 0) {
-                        const amt = perSec * affordableSecs;
-                        await this.walletService.debitWallet(call.callerId, amt, transaction_entity_1.TransactionCategory.CALL_DEBIT, call.id, `Billing for ${affordableSecs} seconds of call ${call.id}`);
-                        call.lastBilledAt = new Date(call.lastBilledAt.getTime() + affordableSecs * 1000);
-                        await this.callRepo.save(call);
-                    }
+                if (Number(wallet.balance) <= costSoFar) {
                     this.logger.log(`Ending call ${call.id} due to insufficient balance`);
                     this.callsGateway.server.to(`user_${call.callerId}`).emit('call:wallet_empty', { callId: call.id });
                     this.callsGateway.server.to(`user_${call.calleeId}`).emit('call:wallet_empty', { callId: call.id });
                     await this.callsService.endCall(call.id, call_entity_1.CallEndReason.BALANCE_EXHAUSTED);
                 }
                 else {
-                    await this.walletService.debitWallet(call.callerId, amountDue, transaction_entity_1.TransactionCategory.CALL_DEBIT, call.id, `Billing for ${diffSecs} seconds of call ${call.id}`);
-                    call.lastBilledAt = new Date(call.lastBilledAt.getTime() + diffSecs * 1000);
-                    await this.callRepo.save(call);
-                    this.logger.log(`Billed ${diffSecs}s for call ${call.id} amount ${amountDue}`);
-                    this.callsGateway.server.to(`user_${call.callerId}`).emit('wallet:update', {
-                        balance: Number((await this.walletService.getWallet(call.callerId)).balance),
-                    });
+                    const approxRemaining = Math.max(0, Number(wallet.balance) - costSoFar);
+                    if (durationSecs % 5 === 0) {
+                        this.callsGateway.server.to(`user_${call.callerId}`).emit('wallet:update', {
+                            balance: approxRemaining,
+                        });
+                    }
                 }
             }
             catch (error) {
