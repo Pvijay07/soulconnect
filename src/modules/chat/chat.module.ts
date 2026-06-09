@@ -4,6 +4,7 @@ import { ChatService } from './chat.service';
 import { ChatGateway } from './gateways/chat.gateway';
 import { Conversation } from './entities/conversation.entity';
 import { Message } from './entities/message.entity';
+import { ChatController } from './chat.controller';
 import { AuthModule } from '../auth/auth.module';
 import { ModerationModule } from '../moderation/moderation.module';
 
@@ -14,6 +15,7 @@ import { ModerationModule } from '../moderation/moderation.module';
         ModerationModule,
     ],
     providers: [ChatService, ChatGateway],
+    controllers: [ChatController],
     exports: [ChatService],
 })
 export class ChatModule { }

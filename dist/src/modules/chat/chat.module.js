@@ -13,6 +13,7 @@ const chat_service_1 = require("./chat.service");
 const chat_gateway_1 = require("./gateways/chat.gateway");
 const conversation_entity_1 = require("./entities/conversation.entity");
 const message_entity_1 = require("./entities/message.entity");
+const chat_controller_1 = require("./chat.controller");
 const auth_module_1 = require("../auth/auth.module");
 const moderation_module_1 = require("../moderation/moderation.module");
 let ChatModule = class ChatModule {
@@ -26,6 +27,7 @@ exports.ChatModule = ChatModule = __decorate([
             moderation_module_1.ModerationModule,
         ],
         providers: [chat_service_1.ChatService, chat_gateway_1.ChatGateway],
+        controllers: [chat_controller_1.ChatController],
         exports: [chat_service_1.ChatService],
     })
 ], ChatModule);

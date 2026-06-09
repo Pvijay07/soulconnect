@@ -27,7 +27,7 @@ export class MediaService {
     /**
      * Creates a Twilio Video Room (SFU Group) or returns a mock room
      */
-    async createRoom(uniqueName: string) {
+    async createRoom(uniqueName: string): Promise<any> {
         if (!this.client) {
             this.logger.warn(`Mock room created for: ${uniqueName}`);
             return { sid: `mock_room_${uniqueName}`, uniqueName };

@@ -113,7 +113,7 @@ let MatchingService = class MatchingService {
     async randomConnect(userId, preferredLanguage) {
         const now = new Date();
         let listeners = await this.lpRepo.find({ where: { isAvailable: true, isApproved: true }, relations: ['user'] });
-        listeners = listeners.filter(l => Number(l.avgRating || 0) >= 3.0);
+        listeners = listeners.filter(l => Number(l.totalRatings || 0) === 0 || Number(l.avgRating || 0) >= 3.0);
         if (listeners.length === 0)
             return null;
         const langMatched = preferredLanguage ? listeners.filter(l => (l.languages || []).includes(preferredLanguage)) : [];

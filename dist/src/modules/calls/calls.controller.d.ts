@@ -30,7 +30,7 @@ export declare class CallsController {
     }): Promise<{
         data: {
             token: string;
-            roomSid: string;
+            roomSid: any;
             roomName: string;
         };
     }>;
