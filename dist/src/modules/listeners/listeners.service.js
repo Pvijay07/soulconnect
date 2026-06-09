@@ -59,6 +59,7 @@ let ListenersService = class ListenersService {
             isAvailable: true,
         });
         await this.listenerRepo.save(profile);
+        await this.userRepo.update(userId, { role: user_entity_1.UserRole.LISTENER });
         return profile;
     }
     async getAdminPending(page = 1, limit = 20) {

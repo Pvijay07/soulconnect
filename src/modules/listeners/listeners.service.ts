@@ -49,6 +49,10 @@ export class ListenersService {
         });
 
         await this.listenerRepo.save(profile);
+
+        // Update user role to LISTENER automatically so they stay an expert after login
+        await this.userRepo.update(userId, { role: UserRole.LISTENER });
+
         return profile;
     }
 

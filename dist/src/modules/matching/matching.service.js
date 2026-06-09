@@ -131,13 +131,10 @@ let MatchingService = class MatchingService {
         const chosen = top.length === 1 ? top[0] : top[Math.floor(Math.random() * top.length)];
         if (!chosen)
             return null;
-        chosen.isAvailable = false;
-        chosen.status = 'busy';
-        await this.lpRepo.save(chosen);
         return {
             listenerId: chosen.userId,
             displayName: chosen.user?.profile?.displayName,
-            avatarUrl: chosen.user?.profile?.avatarUrl,
+            avatarUrl: chosen.uploadedAvatarUrl || chosen.user?.profile?.avatarUrl,
             headline: chosen.headline,
             ratePerMin: Number(chosen.voiceRatePerMin),
         };

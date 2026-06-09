@@ -186,15 +186,12 @@ export class MatchingService {
 
         if (!chosen) return null;
 
-        // Lock expert: set as busy and not available
-        chosen.isAvailable = false;
-        chosen.status = 'busy';
-        await this.lpRepo.save(chosen);
-
+        // Don't permanently disable - the call gateway handles busy state
+        // Just return the match info
         return {
             listenerId: chosen.userId,
             displayName: chosen.user?.profile?.displayName,
-            avatarUrl: chosen.user?.profile?.avatarUrl,
+            avatarUrl: chosen.uploadedAvatarUrl || chosen.user?.profile?.avatarUrl,
             headline: chosen.headline,
             ratePerMin: Number(chosen.voiceRatePerMin),
         };
