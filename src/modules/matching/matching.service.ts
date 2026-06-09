@@ -161,7 +161,7 @@ export class MatchingService {
         let listeners = await this.lpRepo.find({ where: { isAvailable: true, isApproved: true }, relations: ['user'] });
 
         // Filter out very low rated
-        listeners = listeners.filter(l => Number(l.avgRating || 0) >= 3.0);
+        listeners = listeners.filter(l => Number(l.totalRatings || 0) === 0 || Number(l.avgRating || 0) >= 3.0);
         if (listeners.length === 0) return null;
 
         // Step 2: language matching

@@ -43,8 +43,9 @@ export class ListenersService {
             identityDocUrl: data.identityDocUrl,
             certificateUrl: data.certificateUrl,
             introVideoUrl: data.introVideoUrl,
-            approvalStatus: 'pending',
-            isApproved: false,
+            approvalStatus: 'approved',
+            isApproved: true,
+            isAvailable: true,
         });
 
         await this.listenerRepo.save(profile);
