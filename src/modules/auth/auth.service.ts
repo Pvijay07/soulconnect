@@ -235,11 +235,24 @@ export class AuthService {
         });
         if (!user) throw new UnauthorizedException('User not found');
 
+        let role = user.role;
+
+        // Legacy check: if user role is still 'user', check if they have an approved listener profile
+        if (role === UserRole.USER) {
+            const { ListenerProfile } = require('../listeners/entities/listener-profile.entity');
+            const lp = await user.id ? await this.userRepo.manager.findOne(ListenerProfile, { where: { userId: user.id } }) : null;
+            if (lp && lp.approvalStatus === 'approved') {
+                role = UserRole.LISTENER;
+                // Opportunistically fix the DB
+                await this.userRepo.update(user.id, { role: UserRole.LISTENER });
+            }
+        }
+
         return {
             id: user.id,
             email: user.email,
             phone: user.phone,
-            role: user.role,
+            role: role,
             isAnonymous: user.isAnonymous,
             profile: user.profile,
             wallet: user.wallet ? { balance: user.wallet.balance, currency: user.wallet.currency } : null,

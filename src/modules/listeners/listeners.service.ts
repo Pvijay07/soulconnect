@@ -101,7 +101,7 @@ export class ListenersService {
         return profile;
     }
 
-    async browse(filters: {
+    async browse(currentUserId: string, filters: {
         category?: string;
         language?: string;
         minRating?: number;
@@ -119,7 +119,8 @@ export class ListenersService {
             .leftJoinAndSelect('lp.user', 'user')
             .leftJoinAndSelect('user.profile', 'profile')
             .where('lp.isApproved = :approved', { approved: true })
-            .andWhere('user.status = :status', { status: 'active' });
+            .andWhere('user.status = :status', { status: 'active' })
+            .andWhere('lp.userId != :currentUserId', { currentUserId });
 
         if (filters.language) {
             qb.andWhere('lp.languages LIKE :lang', { lang: `%${filters.language}%` });

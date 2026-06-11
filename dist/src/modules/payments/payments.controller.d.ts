@@ -7,9 +7,9 @@ export declare class PaymentsController {
         gateway: string;
     }): Promise<{
         data: {
-            id: string;
+            id: any;
             paymentId: string;
-            amount: number;
+            amount: any;
             amount_inr: number;
             currency: string;
             status: string;

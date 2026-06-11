@@ -21,6 +21,7 @@ export class ListenersController {
     @ApiBearerAuth()
     @ApiOperation({ summary: 'Browse available listeners' })
     async browse(
+        @Req() req: any,
         @Query('category') category?: string,
         @Query('language') language?: string,
         @Query('min_rating') minRating?: number,
@@ -33,7 +34,7 @@ export class ListenersController {
         @Query('minAge') minAge?: number,
         @Query('maxAge') maxAge?: number,
     ) {
-        return { data: await this.listenersService.browse({ category, language, minRating, maxRate, sort, page, limit, name, city, minAge, maxAge }) };
+        return { data: await this.listenersService.browse(req.user.sub, { category, language, minRating, maxRate, sort, page, limit, name, city, minAge, maxAge }) };
     }
 
     @Get('me/earnings')
