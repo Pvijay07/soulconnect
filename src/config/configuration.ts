@@ -18,7 +18,7 @@ export default () => ({
 
   jwt: {
     secret: process.env.JWT_SECRET || 'dev-secret-key',
-    accessExpiry: process.env.JWT_ACCESS_EXPIRY || '15m',
+    accessExpiry: process.env.JWT_ACCESS_EXPIRY || '7d',
     refreshExpiry: process.env.JWT_REFRESH_EXPIRY || '30d',
   },
 
