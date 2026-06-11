@@ -235,11 +235,20 @@ let AuthService = class AuthService {
         });
         if (!user)
             throw new common_1.UnauthorizedException('User not found');
+        let role = user.role;
+        if (role === user_entity_1.UserRole.USER) {
+            const { ListenerProfile } = require('../listeners/entities/listener-profile.entity');
+            const lp = await user.id ? await this.userRepo.manager.findOne(ListenerProfile, { where: { userId: user.id } }) : null;
+            if (lp && lp.approvalStatus === 'approved') {
+                role = user_entity_1.UserRole.LISTENER;
+                await this.userRepo.update(user.id, { role: user_entity_1.UserRole.LISTENER });
+            }
+        }
         return {
             id: user.id,
             email: user.email,
             phone: user.phone,
-            role: user.role,
+            role: role,
             isAnonymous: user.isAnonymous,
             profile: user.profile,
             wallet: user.wallet ? { balance: user.wallet.balance, currency: user.wallet.currency } : null,

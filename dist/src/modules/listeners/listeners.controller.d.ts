@@ -5,7 +5,7 @@ export declare class ListenersController {
     apply(req: any, dto: any): Promise<{
         data: import("./entities/listener-profile.entity").ListenerProfile;
     }>;
-    browse(category?: string, language?: string, minRating?: number, maxRate?: number, sort?: string, page?: number, limit?: number, name?: string, city?: string, minAge?: number, maxAge?: number): Promise<{
+    browse(req: any, category?: string, language?: string, minRating?: number, maxRate?: number, sort?: string, page?: number, limit?: number, name?: string, city?: string, minAge?: number, maxAge?: number): Promise<{
         data: {
             listeners: {
                 id: string;

@@ -17,7 +17,7 @@ export declare class ListenersService {
     }>;
     approveListener(id: string): Promise<ListenerProfile>;
     rejectListener(id: string, reason: string): Promise<ListenerProfile>;
-    browse(filters: {
+    browse(currentUserId: string, filters: {
         category?: string;
         language?: string;
         minRating?: number;

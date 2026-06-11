@@ -98,13 +98,14 @@ let ListenersService = class ListenersService {
         await this.listenerRepo.save(profile);
         return profile;
     }
-    async browse(filters) {
+    async browse(currentUserId, filters) {
         const qb = this.listenerRepo
             .createQueryBuilder('lp')
             .leftJoinAndSelect('lp.user', 'user')
             .leftJoinAndSelect('user.profile', 'profile')
             .where('lp.isApproved = :approved', { approved: true })
-            .andWhere('user.status = :status', { status: 'active' });
+            .andWhere('user.status = :status', { status: 'active' })
+            .andWhere('lp.userId != :currentUserId', { currentUserId });
         if (filters.language) {
             qb.andWhere('lp.languages LIKE :lang', { lang: `%${filters.language}%` });
         }
