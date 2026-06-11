@@ -240,7 +240,7 @@ export class AuthService {
         // Legacy check: if user role is still 'user', check if they have an approved listener profile
         if (role === UserRole.USER) {
             const { ListenerProfile } = require('../listeners/entities/listener-profile.entity');
-            const lp = await user.id ? await this.userRepo.manager.findOne(ListenerProfile, { where: { userId: user.id } }) : null;
+            const lp: any = await user.id ? await this.userRepo.manager.findOne(ListenerProfile, { where: { userId: user.id } }) : null;
             if (lp && lp.approvalStatus === 'approved') {
                 role = UserRole.LISTENER;
                 // Opportunistically fix the DB
