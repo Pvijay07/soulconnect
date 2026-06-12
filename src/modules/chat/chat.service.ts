@@ -48,7 +48,12 @@ export class ChatService {
             lastMessageAt: new Date(),
         });
 
-        return message;
+        const fullMessage = await this.messageRepo.findOne({
+            where: { id: message.id },
+            relations: ['sender', 'sender.profile', 'sender.listenerProfile'],
+        });
+
+        return fullMessage || message;
     }
 
     async updateConversationStatus(convId: string, status: string) {
