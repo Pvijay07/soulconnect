@@ -14,6 +14,8 @@ export enum TransactionCategory {
     RECHARGE = 'recharge',
     CALL_DEBIT = 'call_debit',
     CALL_EARNING = 'call_earning',
+    CHAT_DEBIT = 'chat_debit',
+    CHAT_EARNING = 'chat_earning',
     COMMISSION = 'commission',
     WITHDRAWAL = 'withdrawal',
     REFUND = 'refund',

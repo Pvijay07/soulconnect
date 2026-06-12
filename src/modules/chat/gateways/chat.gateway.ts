@@ -13,6 +13,8 @@ import { ConfigService } from '@nestjs/config';
 import { ChatService } from '../chat.service';
 import { ModerationService } from '../../moderation/moderation.service';
 import { MessageType } from '../entities/message.entity';
+import { WalletService } from '../../wallet/wallet.service';
+import { TransactionCategory } from '../../wallet/entities/transaction.entity';
 
 @WebSocketGateway({
     cors: { origin: '*' },
@@ -30,6 +32,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         private readonly configService: ConfigService,
         private readonly chatService: ChatService,
         private readonly moderationService: ModerationService,
+        private readonly walletService: WalletService,
     ) { }
 
     async handleConnection(client: Socket) {
@@ -41,6 +44,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
             const userId = payload.sub;
             client.data.userId = userId;
+            client.data.role = payload.role;
             this.connectedUsers.set(userId, client.id);
 
             console.log(`User connected: ${userId}`);
@@ -64,6 +68,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         @MessageBody() data: { recipientId: string; content: string; type?: MessageType },
     ) {
         const senderId = client.data.userId;
+        const senderRole = client.data.role;
         const { recipientId, content, type } = data;
 
         // AI MODERATION CHECK
@@ -74,6 +79,17 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         }
 
         const conv = await this.chatService.findOrCreateConversation(senderId, recipientId);
+
+        // Deduct 3 coins from user and credit to expert
+        if (senderRole === 'user') {
+            try {
+                await this.walletService.debitWallet(senderId, 3, TransactionCategory.CHAT_DEBIT, conv.id, 'Chat message cost');
+                await this.walletService.creditWallet(recipientId, 3, TransactionCategory.CHAT_EARNING, conv.id, 'Chat message earning');
+            } catch (e) {
+                return { status: 'error', reason: 'Insufficient balance. Please recharge your wallet.' };
+            }
+        }
+
         const message = await this.chatService.saveMessage(conv.id, senderId, content, type);
 
         // Emit to both users

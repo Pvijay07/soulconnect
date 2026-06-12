@@ -7,12 +7,14 @@ import { Message } from './entities/message.entity';
 import { ChatController } from './chat.controller';
 import { AuthModule } from '../auth/auth.module';
 import { ModerationModule } from '../moderation/moderation.module';
+import { WalletModule } from '../wallet/wallet.module';
 
 @Module({
     imports: [
         TypeOrmModule.forFeature([Conversation, Message]),
         AuthModule,
         ModerationModule,
+        WalletModule,
     ],
     providers: [ChatService, ChatGateway],
     controllers: [ChatController],

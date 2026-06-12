@@ -261,6 +261,7 @@ export class ListenersService {
             avgRating: lp.avgRating,
             totalRatings: lp.totalRatings,
             currentBalance: wallet ? wallet.balance : 0,
+            isAvailable: lp.isAvailable,
         };
     }
 
