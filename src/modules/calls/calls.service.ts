@@ -92,7 +92,9 @@ export class CallsService {
         if (!call || call.status === CallStatus.ENDED) return;
 
         const endedAt = new Date();
-        const durationSecs = Math.floor((endedAt.getTime() - call.startedAt.getTime()) / 1000);
+        const durationSecs = call.startedAt
+            ? Math.floor((endedAt.getTime() - call.startedAt.getTime()) / 1000)
+            : 0;
         // Calculate exact minutes as floating point for accurate seconds deduction
         const durationMins = durationSecs / 60.0;
 
@@ -122,22 +124,25 @@ export class CallsService {
 
         await this.callRepo.save(call);
 
-        // Credit the listener at the end of the call
-        await this.walletService.creditWallet(
-            call.calleeId,
-            listenerEarned,
-            TransactionCategory.CALL_EARNING,
-            call.id,
-            `Call earnings: ${durationMins} mins`,
-        );
+        // Only credit listener and update statistics if the call actually connected/started
+        if (call.startedAt && durationSecs > 0) {
+            // Credit the listener at the end of the call
+            await this.walletService.creditWallet(
+                call.calleeId,
+                listenerEarned,
+                TransactionCategory.CALL_EARNING,
+                call.id,
+                `Call earnings: ${durationMins} mins`,
+            );
 
-        // Update listener stats
-        await this.lpRepo.increment({ userId: call.calleeId }, 'totalCalls', 1);
-        await this.lpRepo.increment({ userId: call.calleeId }, 'totalMinutes', durationMins);
-        await this.lpRepo.increment({ userId: call.calleeId }, 'totalEarnings', listenerEarned);
+            // Update listener stats
+            await this.lpRepo.increment({ userId: call.calleeId }, 'totalCalls', 1);
+            await this.lpRepo.increment({ userId: call.calleeId }, 'totalMinutes', durationMins);
+            await this.lpRepo.increment({ userId: call.calleeId }, 'totalEarnings', listenerEarned);
 
-        // Update caller call count
-        await this.userRepo.increment({ id: call.callerId }, 'callCount', 1);
+            // Update caller call count
+            await this.userRepo.increment({ id: call.callerId }, 'callCount', 1);
+        }
 
         const lp = await this.lpRepo.findOne({ where: { userId: call.calleeId } });
         if (lp) {
