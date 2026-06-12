@@ -93,12 +93,12 @@ export class AuthService {
 
     async login(dto: LoginDto) {
         // Admin Bypass
-        if (dto.email === 'admin@soulconnect' && dto.password === '12345678') {
+        if (dto.email === 'admin@soulconnect.com' && dto.password === '12345678') {
             // Check if admin user exists, else create it
-            let adminUser = await this.userRepo.findOne({ where: { email: 'admin@soulconnect' } });
+            let adminUser = await this.userRepo.findOne({ where: { email: 'admin@soulconnect.com' } });
             if (!adminUser) {
                 adminUser = this.userRepo.create({
-                    email: 'admin@soulconnect',
+                    email: 'admin@soulconnect.com',
                     passwordHash: await bcrypt.hash('12345678', 12),
                     role: UserRole.ADMIN,
                     status: 'active' as any,
