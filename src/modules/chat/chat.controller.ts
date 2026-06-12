@@ -1,4 +1,4 @@
-import { Controller, Get, UseGuards, Request, Param, Patch, Body } from '@nestjs/common';
+import { Controller, Get, Post, UseGuards, Request, Param, Patch, Body } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/strategies/jwt-auth.guard';
 import { ChatService } from './chat.service';
 
@@ -14,6 +14,16 @@ export class ChatController {
         return {
             status: 'success',
             data: convs,
+        };
+    }
+
+    @Post('conversations')
+    async getOrCreateConversation(@Request() req, @Body('recipientId') recipientId: string) {
+        const userId = req.user.userId;
+        const conv = await this.chatService.findOrCreateConversation(userId, recipientId);
+        return {
+            status: 'success',
+            data: conv,
         };
     }
 
