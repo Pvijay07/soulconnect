@@ -102,4 +102,12 @@ export class ListenersController {
     async reject(@Param('id') id: string, @Body('reason') reason: string) {
         return { data: await this.listenersService.rejectListener(id, reason) };
     }
+
+    @Post(':id/follow')
+    @UseGuards(JwtAuthGuard)
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Follow an expert' })
+    async follow(@Req() req: any, @Param('id') id: string) {
+        return { data: await this.listenersService.followListener(req.user.sub, id) };
+    }
 }

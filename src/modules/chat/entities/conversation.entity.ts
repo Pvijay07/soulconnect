@@ -24,6 +24,12 @@ export class Conversation {
     @Column({ type: 'boolean', default: true })
     isActive: boolean;
 
+    @Column({ type: 'varchar', length: 50, default: 'accepted' })
+    status: string; // 'pending', 'accepted', 'rejected'
+
+    @Column({ type: 'uuid', nullable: true })
+    initiatedById: string;
+
     @CreateDateColumn({ type: 'timestamptz' })
     createdAt: Date;
 

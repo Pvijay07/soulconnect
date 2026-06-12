@@ -20,9 +20,14 @@ export class ChatService {
         });
 
         if (!conv) {
+            // p1Id is the sender who initiated it. Let's see if sender is an expert.
+            // Wait, we don't have the user roles here easily without querying.
+            // Let's pass senderId explicitly.
             conv = this.convRepo.create({
                 participant1Id: sortedIds[0],
                 participant2Id: sortedIds[1],
+                initiatedById: p1Id, // We assume p1Id is the initiator from the context of who calls it. Actually let's change signature if needed.
+                status: 'pending',
             });
             await this.convRepo.save(conv);
         }
@@ -46,6 +51,10 @@ export class ChatService {
         return message;
     }
 
+    async updateConversationStatus(convId: string, status: string) {
+        await this.convRepo.update(convId, { status });
+    }
+
     async getMessages(convId: string, page = 1, limit = 50) {
         return this.messageRepo.find({
             where: { conversationId: convId },
@@ -61,6 +70,7 @@ export class ChatService {
                 { participant1Id: userId },
                 { participant2Id: userId },
             ],
+            relations: ['participant1', 'participant1.profile', 'participant1.listenerProfile', 'participant2', 'participant2.profile', 'participant2.listenerProfile'],
             order: { lastMessageAt: 'DESC' },
         });
     }

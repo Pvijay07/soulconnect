@@ -146,4 +146,41 @@ export class AdminService {
             hasNext: page * limit < total,
         };
     }
+
+    async blockExpert(id: string) {
+        // Block expert means blocking the underlying user
+        const expert = await this.listenerRepo.findOne({ where: { id } });
+        if (!expert) throw new NotFoundException('Expert not found');
+        
+        await this.userRepo.update(expert.userId, { status: 'blocked' as any });
+        return { success: true, message: 'Expert blocked successfully' };
+    }
+
+    async processPayout(expertId: string, amount: number) {
+        const expert = await this.listenerRepo.findOne({ where: { id: expertId } });
+        if (!expert) throw new NotFoundException('Expert not found');
+
+        const wallet = await this.txnRepo.manager.findOne('Wallet', { where: { userId: expert.userId } });
+        if (!wallet) throw new NotFoundException('Wallet not found');
+
+        if ((wallet as any).balance < amount) {
+            throw new Error('Insufficient balance for payout');
+        }
+
+        // Deduct balance and record transaction
+        await this.txnRepo.manager.transaction(async em => {
+            await em.decrement('Wallet', { userId: expert.userId }, 'balance', amount);
+            const txn = this.txnRepo.create({
+                walletId: (wallet as any).id,
+                amount: amount,
+                type: 'debit',
+                category: 'payout',
+                description: 'Admin processed payout',
+                referenceId: `payout-${Date.now()}`,
+            });
+            await em.save(txn);
+        });
+
+        return { success: true, message: 'Payout processed successfully' };
+    }
 }

@@ -6,9 +6,10 @@ import { ListenerProfile } from './entities/listener-profile.entity';
 import { User } from '../users/entities/user.entity';
 import { Rating } from '../users/entities/social.entity';
 import { Wallet } from '../wallet/entities/wallet.entity';
+import { NotificationsModule } from '../notifications/notifications.module';
 
 @Module({
-    imports: [TypeOrmModule.forFeature([ListenerProfile, User, Rating, Wallet])],
+    imports: [TypeOrmModule.forFeature([ListenerProfile, User, Rating, Wallet]), NotificationsModule],
     providers: [ListenersService],
     controllers: [ListenersController],
     exports: [ListenersService],

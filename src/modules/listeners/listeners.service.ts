@@ -5,6 +5,7 @@ import { ListenerProfile } from './entities/listener-profile.entity';
 import { User, UserRole } from '../users/entities/user.entity';
 import { Rating } from '../users/entities/social.entity';
 import { Wallet } from '../wallet/entities/wallet.entity';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class ListenersService {
@@ -17,6 +18,7 @@ export class ListenersService {
         private readonly ratingRepo: Repository<Rating>,
         @InjectRepository(Wallet)
         private readonly walletRepo: Repository<Wallet>,
+        private readonly notificationsService: NotificationsService,
     ) { }
 
     async apply(userId: string, data: any) {
@@ -260,5 +262,25 @@ export class ListenersService {
             totalRatings: lp.totalRatings,
             currentBalance: wallet ? wallet.balance : 0,
         };
+    }
+
+    async followListener(followerId: string, listenerId: string) {
+        const expert = await this.listenerRepo.findOne({ where: { userId: listenerId } });
+        if (!expert) throw new NotFoundException('Expert not found');
+        
+        const follower = await this.userRepo.findOne({ where: { id: followerId }, relations: ['profile'] });
+        if (!follower) throw new NotFoundException('Follower not found');
+
+        const followerName = follower.profile?.displayName || 'A user';
+
+        // Notify the expert
+        await this.notificationsService.sendPushNotification(
+            listenerId,
+            'New Follower',
+            `${followerName} started following you!`,
+            { followerId, type: 'new_follower' }
+        );
+
+        return { success: true, message: 'Successfully followed' };
     }
 }

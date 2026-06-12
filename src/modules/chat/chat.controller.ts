@@ -1,4 +1,4 @@
-import { Controller, Get, UseGuards, Request, Param } from '@nestjs/common';
+import { Controller, Get, UseGuards, Request, Param, Patch, Body } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/strategies/jwt-auth.guard';
 import { ChatService } from './chat.service';
 
@@ -23,6 +23,15 @@ export class ChatController {
         return {
             status: 'success',
             data: messages,
+        };
+    }
+
+    @Patch('conversations/:convId/status')
+    async updateStatus(@Request() req, @Param('convId') convId: string, @Body('status') status: string) {
+        await this.chatService.updateConversationStatus(convId, status);
+        return {
+            status: 'success',
+            message: 'Conversation status updated'
         };
     }
 }

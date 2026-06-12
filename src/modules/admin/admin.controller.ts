@@ -105,4 +105,20 @@ export class AdminController {
     async rejectExpert(@Param('id') id: string, @Body('reason') reason: string) {
         return { data: await this.listenersService.rejectListener(id, reason || 'Application rejected by admin') };
     }
+
+    @Post('experts/:id/block')
+    @UseGuards(JwtAuthGuard)
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Block an expert' })
+    async blockExpert(@Param('id') id: string) {
+        return { data: await this.adminService.blockExpert(id) };
+    }
+
+    @Post('payouts')
+    @UseGuards(JwtAuthGuard)
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Process a payout to an expert' })
+    async processPayout(@Body() dto: any) {
+        return { data: await this.adminService.processPayout(dto.expertId, dto.amount) };
+    }
 }
