@@ -5,7 +5,7 @@ import { Banner } from './entities/banner.entity';
 import { ListenerProfile } from '../listeners/entities/listener-profile.entity';
 import { User } from '../users/entities/user.entity';
 import { Call } from '../calls/entities/call.entity';
-import { Transaction } from '../wallet/entities/transaction.entity';
+import { Transaction, TransactionType, TransactionCategory } from '../wallet/entities/transaction.entity';
 
 @Injectable()
 export class AdminService {
@@ -173,8 +173,8 @@ export class AdminService {
             const txn = this.txnRepo.create({
                 walletId: (wallet as any).id,
                 amount: amount,
-                type: 'debit',
-                category: 'payout',
+                type: TransactionType.DEBIT,
+                category: TransactionCategory.WITHDRAWAL,
                 description: 'Admin processed payout',
                 referenceId: `payout-${Date.now()}`,
             });
