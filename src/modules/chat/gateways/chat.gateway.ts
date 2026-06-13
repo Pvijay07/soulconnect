@@ -15,6 +15,9 @@ import { ModerationService } from '../../moderation/moderation.service';
 import { MessageType } from '../entities/message.entity';
 import { WalletService } from '../../wallet/wallet.service';
 import { TransactionCategory } from '../../wallet/entities/transaction.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { User, UserRole } from '../../users/entities/user.entity';
 
 @WebSocketGateway({
     cors: { origin: '*' },
@@ -33,6 +36,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         private readonly chatService: ChatService,
         private readonly moderationService: ModerationService,
         private readonly walletService: WalletService,
+        @InjectRepository(User) private readonly userRepo: Repository<User>,
     ) { }
 
     async handleConnection(client: Socket) {
@@ -84,11 +88,14 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
         // Deduct 3 coins from user and credit to expert
         if (senderRole === 'user') {
-            try {
-                await this.walletService.debitWallet(senderId, 3, TransactionCategory.CHAT_DEBIT, conv.id, 'Chat message cost');
-                await this.walletService.creditWallet(recipientId, 3, TransactionCategory.CHAT_EARNING, conv.id, 'Chat message earning');
-            } catch (e) {
-                return { status: 'error', reason: 'Insufficient balance. Please recharge your wallet.' };
+            const recipient = await this.userRepo.findOne({ where: { id: recipientId } });
+            if (recipient && recipient.role !== UserRole.ADMIN) {
+                try {
+                    await this.walletService.debitWallet(senderId, 3, TransactionCategory.CHAT_DEBIT, conv.id, 'Chat message cost');
+                    await this.walletService.creditWallet(recipientId, 3, TransactionCategory.CHAT_EARNING, conv.id, 'Chat message earning');
+                } catch (e) {
+                    return { status: 'error', reason: 'Insufficient balance. Please recharge your wallet.' };
+                }
             }
         }
 

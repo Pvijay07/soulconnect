@@ -21,20 +21,25 @@ const chat_service_1 = require("../chat.service");
 const moderation_service_1 = require("../../moderation/moderation.service");
 const wallet_service_1 = require("../../wallet/wallet.service");
 const transaction_entity_1 = require("../../wallet/entities/transaction.entity");
+const typeorm_1 = require("@nestjs/typeorm");
+const typeorm_2 = require("typeorm");
+const user_entity_1 = require("../../users/entities/user.entity");
 let ChatGateway = class ChatGateway {
     jwtService;
     configService;
     chatService;
     moderationService;
     walletService;
+    userRepo;
     server;
     connectedUsers = new Map();
-    constructor(jwtService, configService, chatService, moderationService, walletService) {
+    constructor(jwtService, configService, chatService, moderationService, walletService, userRepo) {
         this.jwtService = jwtService;
         this.configService = configService;
         this.chatService = chatService;
         this.moderationService = moderationService;
         this.walletService = walletService;
+        this.userRepo = userRepo;
     }
     async handleConnection(client) {
         try {
@@ -73,12 +78,15 @@ let ChatGateway = class ChatGateway {
         }
         const conv = await this.chatService.findOrCreateConversation(senderId, recipientId);
         if (senderRole === 'user') {
-            try {
-                await this.walletService.debitWallet(senderId, 3, transaction_entity_1.TransactionCategory.CHAT_DEBIT, conv.id, 'Chat message cost');
-                await this.walletService.creditWallet(recipientId, 3, transaction_entity_1.TransactionCategory.CHAT_EARNING, conv.id, 'Chat message earning');
-            }
-            catch (e) {
-                return { status: 'error', reason: 'Insufficient balance. Please recharge your wallet.' };
+            const recipient = await this.userRepo.findOne({ where: { id: recipientId } });
+            if (recipient && recipient.role !== user_entity_1.UserRole.ADMIN) {
+                try {
+                    await this.walletService.debitWallet(senderId, 3, transaction_entity_1.TransactionCategory.CHAT_DEBIT, conv.id, 'Chat message cost');
+                    await this.walletService.creditWallet(recipientId, 3, transaction_entity_1.TransactionCategory.CHAT_EARNING, conv.id, 'Chat message earning');
+                }
+                catch (e) {
+                    return { status: 'error', reason: 'Insufficient balance. Please recharge your wallet.' };
+                }
             }
         }
         const message = await this.chatService.saveMessage(conv.id, senderId, content, type, mediaUrl);
@@ -120,10 +128,12 @@ exports.ChatGateway = ChatGateway = __decorate([
         cors: { origin: '*' },
         namespace: 'chat',
     }),
+    __param(5, (0, typeorm_1.InjectRepository)(user_entity_1.User)),
     __metadata("design:paramtypes", [jwt_1.JwtService,
         config_1.ConfigService,
         chat_service_1.ChatService,
         moderation_service_1.ModerationService,
-        wallet_service_1.WalletService])
+        wallet_service_1.WalletService,
+        typeorm_2.Repository])
 ], ChatGateway);
 //# sourceMappingURL=chat.gateway.js.map
