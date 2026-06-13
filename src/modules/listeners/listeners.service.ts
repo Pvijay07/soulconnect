@@ -178,6 +178,7 @@ export class ListenersService {
                 avgRating: lp.avgRating,
                 totalRatings: lp.totalRatings,
                 isAvailable: lp.isAvailable,
+                status: lp.status,
                 isVerified: lp.isVerified,
             })),
             pagination: { page, limit, total, hasNext: page * limit < total },

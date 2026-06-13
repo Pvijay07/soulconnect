@@ -84,13 +84,9 @@ let ChatService = class ChatService {
     }
     async getConversations(userId, isSupportOnly = false) {
         const whereClause = [
-            { participant1Id: userId },
-            { participant2Id: userId },
+            { participant1Id: userId, isSupport: isSupportOnly },
+            { participant2Id: userId, isSupport: isSupportOnly },
         ];
-        if (isSupportOnly) {
-            whereClause[0].isSupport = true;
-            whereClause[1].isSupport = true;
-        }
         return this.convRepo.find({
             where: whereClause,
             relations: ['participant1', 'participant1.profile', 'participant1.listenerProfile', 'participant2', 'participant2.profile', 'participant2.listenerProfile'],

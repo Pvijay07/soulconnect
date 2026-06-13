@@ -20,6 +20,7 @@ export declare class ListenersController {
                 avgRating: number;
                 totalRatings: number;
                 isAvailable: boolean;
+                status: string;
                 isVerified: boolean;
             }[];
             pagination: {

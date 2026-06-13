@@ -43,6 +43,7 @@ export declare class ListenersService {
             avgRating: number;
             totalRatings: number;
             isAvailable: boolean;
+            status: string;
             isVerified: boolean;
         }[];
         pagination: {
