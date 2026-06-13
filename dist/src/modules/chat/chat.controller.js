@@ -56,7 +56,7 @@ exports.ChatController = ChatController;
 __decorate([
     (0, common_1.Get)('conversations'),
     __param(0, (0, common_1.Request)()),
-    __param(1, Query('isSupport')),
+    __param(1, (0, common_1.Query)('isSupport')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object, String]),
     __metadata("design:returntype", Promise)
