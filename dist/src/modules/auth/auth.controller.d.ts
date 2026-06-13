@@ -89,4 +89,10 @@ export declare class AuthController {
     }): Promise<{
         data: import("../users/entities/profile.entity").Profile;
     }>;
+    deleteAccount(req: any): Promise<{
+        data: {
+            success: boolean;
+            message: string;
+        };
+    }>;
 }

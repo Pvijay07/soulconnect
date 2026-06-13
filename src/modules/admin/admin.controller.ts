@@ -22,6 +22,14 @@ export class AdminController {
         return { data: await this.adminService.getAllUsers(+page, +limit, search) };
     }
 
+    @Get('support-agent')
+    @UseGuards(JwtAuthGuard)
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Get live support agent id' })
+    async getSupportAgent() {
+        return { data: await this.adminService.getSupportAgent() };
+    }
+
     // ─── Dashboard ──────────────────────────────────────────────
 
     @Get('dashboard')
@@ -134,7 +142,7 @@ export class AdminController {
     @UseGuards(JwtAuthGuard)
     @ApiBearerAuth()
     @ApiOperation({ summary: 'Send push notification or SMS to users' })
-    async sendPromotion(@Body() dto: { title: string; body: string; type: 'push' | 'sms' }) {
+    async sendPromotion(@Body() dto: { title: string; body: string; type: 'push' | 'sms'; audience: 'all' | 'users' | 'experts' }) {
         return { data: await this.adminService.sendPromotion(dto) };
     }
 }

@@ -1,10 +1,11 @@
 import { Repository } from 'typeorm';
 import { Banner } from './entities/banner.entity';
 import { ListenerProfile } from '../listeners/entities/listener-profile.entity';
-import { User } from '../users/entities/user.entity';
+import { User, UserRole } from '../users/entities/user.entity';
 import { Call } from '../calls/entities/call.entity';
 import { Transaction } from '../wallet/entities/transaction.entity';
 import { PayoutService } from '../wallet/payout.service';
+import { ChatGateway } from '../chat/gateways/chat.gateway';
 export declare class AdminService {
     private readonly bannerRepo;
     private readonly listenerRepo;
@@ -12,7 +13,8 @@ export declare class AdminService {
     private readonly callRepo;
     private readonly txnRepo;
     private readonly payoutService;
-    constructor(bannerRepo: Repository<Banner>, listenerRepo: Repository<ListenerProfile>, userRepo: Repository<User>, callRepo: Repository<Call>, txnRepo: Repository<Transaction>, payoutService: PayoutService);
+    private readonly chatGateway;
+    constructor(bannerRepo: Repository<Banner>, listenerRepo: Repository<ListenerProfile>, userRepo: Repository<User>, callRepo: Repository<Call>, txnRepo: Repository<Transaction>, payoutService: PayoutService, chatGateway: ChatGateway);
     getActiveBanners(): Promise<Banner[]>;
     getAllBanners(): Promise<Banner[]>;
     createBanner(data: Partial<Banner>): Promise<Banner>;
@@ -43,7 +45,7 @@ export declare class AdminService {
             id: string;
             email: string;
             phone: string;
-            role: import("../users/entities/user.entity").UserRole;
+            role: UserRole;
             status: import("../users/entities/user.entity").UserStatus;
             isAnonymous: boolean;
             createdAt: Date;
@@ -55,6 +57,9 @@ export declare class AdminService {
         total: number;
         hasNext: boolean;
     }>;
+    getSupportAgent(): Promise<{
+        id: string;
+    }>;
     blockExpert(id: string): Promise<{
         success: boolean;
         message: string;
@@ -65,6 +70,7 @@ export declare class AdminService {
         title: string;
         body: string;
         type: 'push' | 'sms';
+        audience: 'all' | 'users' | 'experts';
     }): Promise<{
         success: boolean;
         message: string;

@@ -23,6 +23,11 @@ export declare class AdminController {
             hasNext: boolean;
         };
     }>;
+    getSupportAgent(): Promise<{
+        data: {
+            id: string;
+        };
+    }>;
     getDashboard(): Promise<{
         data: {
             totalUsers: number;
@@ -86,6 +91,7 @@ export declare class AdminController {
         title: string;
         body: string;
         type: 'push' | 'sms';
+        audience: 'all' | 'users' | 'experts';
     }): Promise<{
         data: {
             success: boolean;

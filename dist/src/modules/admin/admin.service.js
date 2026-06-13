@@ -22,6 +22,7 @@ const user_entity_1 = require("../users/entities/user.entity");
 const call_entity_1 = require("../calls/entities/call.entity");
 const transaction_entity_1 = require("../wallet/entities/transaction.entity");
 const payout_service_1 = require("../wallet/payout.service");
+const chat_gateway_1 = require("../chat/gateways/chat.gateway");
 let AdminService = class AdminService {
     bannerRepo;
     listenerRepo;
@@ -29,13 +30,15 @@ let AdminService = class AdminService {
     callRepo;
     txnRepo;
     payoutService;
-    constructor(bannerRepo, listenerRepo, userRepo, callRepo, txnRepo, payoutService) {
+    chatGateway;
+    constructor(bannerRepo, listenerRepo, userRepo, callRepo, txnRepo, payoutService, chatGateway) {
         this.bannerRepo = bannerRepo;
         this.listenerRepo = listenerRepo;
         this.userRepo = userRepo;
         this.callRepo = callRepo;
         this.txnRepo = txnRepo;
         this.payoutService = payoutService;
+        this.chatGateway = chatGateway;
     }
     async getActiveBanners() {
         const now = new Date();
@@ -138,6 +141,16 @@ let AdminService = class AdminService {
             hasNext: page * limit < total,
         };
     }
+    async getSupportAgent() {
+        let agent = await this.userRepo.findOne({ where: { role: user_entity_1.UserRole.ADMIN } });
+        if (!agent) {
+            agent = await this.userRepo.findOne({ where: { role: user_entity_1.UserRole.LISTENER } });
+        }
+        if (!agent) {
+            throw new common_1.NotFoundException('No support agent available');
+        }
+        return { id: agent.id };
+    }
     async blockExpert(id) {
         const expert = await this.listenerRepo.findOne({ where: { id } });
         if (!expert)
@@ -152,8 +165,26 @@ let AdminService = class AdminService {
         return this.payoutService.updatePayoutStatus(payoutId, status, remarks, reference);
     }
     async sendPromotion(dto) {
-        console.log(`[PROMOTION] Sending ${dto.type} to all users: ${dto.title} - ${dto.body}`);
-        return { success: true, message: `Successfully sent ${dto.type} to users` };
+        console.log(`[PROMOTION] Sending ${dto.type} to ${dto.audience}: ${dto.title} - ${dto.body}`);
+        if (dto.type === 'push') {
+            let usersToNotify = [];
+            if (dto.audience === 'all') {
+                usersToNotify = await this.userRepo.find({ select: ['id'] });
+            }
+            else if (dto.audience === 'experts') {
+                usersToNotify = await this.userRepo.find({ where: { role: user_entity_1.UserRole.LISTENER }, select: ['id'] });
+            }
+            else if (dto.audience === 'users') {
+                usersToNotify = await this.userRepo.find({ where: { role: user_entity_1.UserRole.USER }, select: ['id'] });
+            }
+            for (const user of usersToNotify) {
+                this.chatGateway.server.to(`user_${user.id}`).emit('notification:receive', {
+                    title: dto.title,
+                    body: dto.body,
+                });
+            }
+        }
+        return { success: true, message: `Successfully sent ${dto.type} to ${dto.audience}` };
     }
 };
 exports.AdminService = AdminService;
@@ -169,6 +200,7 @@ exports.AdminService = AdminService = __decorate([
         typeorm_2.Repository,
         typeorm_2.Repository,
         typeorm_2.Repository,
-        payout_service_1.PayoutService])
+        payout_service_1.PayoutService,
+        chat_gateway_1.ChatGateway])
 ], AdminService);
 //# sourceMappingURL=admin.service.js.map

@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, UseGuards, Req } from '@nestjs/common';
+import { Controller, Post, Body, Get, Delete, UseGuards, Req } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { RegisterDto, LoginDto, SendOtpDto, VerifyOtpDto, RefreshTokenDto } from './dto/auth.dto';
@@ -53,5 +53,13 @@ export class AuthController {
     @ApiOperation({ summary: 'Update user profile' })
     async updateProfile(@Req() req: any, @Body() dto: { displayName?: string; bio?: string }) {
         return { data: await this.authService.updateProfile(req.user.sub, dto) };
+    }
+
+    @Delete('me')
+    @UseGuards(JwtAuthGuard)
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Delete current user account' })
+    async deleteAccount(@Req() req: any) {
+        return { data: await this.authService.deleteAccount(req.user.sub) };
     }
 }

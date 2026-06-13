@@ -86,5 +86,9 @@ export declare class AuthService {
         displayName?: string;
         bio?: string;
     }): Promise<Profile>;
+    deleteAccount(userId: string): Promise<{
+        success: boolean;
+        message: string;
+    }>;
     private generateTokens;
 }

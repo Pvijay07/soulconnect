@@ -3,10 +3,11 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, LessThanOrEqual, MoreThanOrEqual, IsNull, Or } from 'typeorm';
 import { Banner } from './entities/banner.entity';
 import { ListenerProfile } from '../listeners/entities/listener-profile.entity';
-import { User } from '../users/entities/user.entity';
+import { User, UserRole } from '../users/entities/user.entity';
 import { Call } from '../calls/entities/call.entity';
 import { Transaction, TransactionType, TransactionCategory } from '../wallet/entities/transaction.entity';
 import { PayoutService } from '../wallet/payout.service';
+import { ChatGateway } from '../chat/gateways/chat.gateway';
 
 @Injectable()
 export class AdminService {
@@ -22,6 +23,7 @@ export class AdminService {
         @InjectRepository(Transaction)
         private readonly txnRepo: Repository<Transaction>,
         private readonly payoutService: PayoutService,
+        private readonly chatGateway: ChatGateway,
     ) { }
 
     // ─── Banner CRUD ───────────────────────────────────────────
@@ -149,6 +151,18 @@ export class AdminService {
         };
     }
 
+    async getSupportAgent() {
+        // Find an admin user or fallback to a default expert
+        let agent = await this.userRepo.findOne({ where: { role: UserRole.ADMIN } });
+        if (!agent) {
+            agent = await this.userRepo.findOne({ where: { role: UserRole.LISTENER } });
+        }
+        if (!agent) {
+            throw new NotFoundException('No support agent available');
+        }
+        return { id: agent.id };
+    }
+
     async blockExpert(id: string) {
         // Block expert means blocking the underlying user
         const expert = await this.listenerRepo.findOne({ where: { id } });
@@ -166,8 +180,28 @@ export class AdminService {
         return this.payoutService.updatePayoutStatus(payoutId, status, remarks, reference);
     }
 
-    async sendPromotion(dto: { title: string; body: string; type: 'push' | 'sms' }) {
-        console.log(`[PROMOTION] Sending ${dto.type} to all users: ${dto.title} - ${dto.body}`);
-        return { success: true, message: `Successfully sent ${dto.type} to users` };
+    async sendPromotion(dto: { title: string; body: string; type: 'push' | 'sms'; audience: 'all' | 'users' | 'experts' }) {
+        console.log(`[PROMOTION] Sending ${dto.type} to ${dto.audience}: ${dto.title} - ${dto.body}`);
+        
+        if (dto.type === 'push') {
+            let usersToNotify: User[] = [];
+            
+            if (dto.audience === 'all') {
+                usersToNotify = await this.userRepo.find({ select: ['id'] });
+            } else if (dto.audience === 'experts') {
+                usersToNotify = await this.userRepo.find({ where: { role: UserRole.LISTENER }, select: ['id'] });
+            } else if (dto.audience === 'users') {
+                usersToNotify = await this.userRepo.find({ where: { role: UserRole.USER }, select: ['id'] });
+            }
+            
+            for (const user of usersToNotify) {
+                this.chatGateway.server.to(`user_${user.id}`).emit('notification:receive', {
+                    title: dto.title,
+                    body: dto.body,
+                });
+            }
+        }
+        
+        return { success: true, message: `Successfully sent ${dto.type} to ${dto.audience}` };
     }
 }

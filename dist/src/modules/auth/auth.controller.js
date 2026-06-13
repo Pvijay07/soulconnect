@@ -44,6 +44,9 @@ let AuthController = class AuthController {
     async updateProfile(req, dto) {
         return { data: await this.authService.updateProfile(req.user.sub, dto) };
     }
+    async deleteAccount(req) {
+        return { data: await this.authService.deleteAccount(req.user.sub) };
+    }
 };
 exports.AuthController = AuthController;
 __decorate([
@@ -107,6 +110,16 @@ __decorate([
     __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "updateProfile", null);
+__decorate([
+    (0, common_1.Delete)('me'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiOperation)({ summary: 'Delete current user account' }),
+    __param(0, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "deleteAccount", null);
 exports.AuthController = AuthController = __decorate([
     (0, swagger_1.ApiTags)('Authentication'),
     (0, common_1.Controller)('auth'),

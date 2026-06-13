@@ -281,6 +281,17 @@ let AuthService = class AuthService {
             profile.bio = dto.bio;
         return this.profileRepo.save(profile);
     }
+    async deleteAccount(userId) {
+        const user = await this.userRepo.findOne({ where: { id: userId } });
+        if (!user)
+            throw new common_1.UnauthorizedException('User not found');
+        await this.userRepo.update(userId, {
+            status: 'blocked',
+            email: `deleted_${Date.now()}_${user.email || ''}`,
+            phone: `deleted_${Date.now()}_${user.phone || ''}`
+        });
+        return { success: true, message: 'Account deleted successfully' };
+    }
     async generateTokens(user) {
         const payload = { sub: user.id, role: user.role };
         const accessToken = this.jwtService.sign(payload, {

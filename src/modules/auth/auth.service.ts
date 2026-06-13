@@ -289,6 +289,20 @@ export class AuthService {
         return this.profileRepo.save(profile);
     }
 
+    async deleteAccount(userId: string) {
+        const user = await this.userRepo.findOne({ where: { id: userId } });
+        if (!user) throw new UnauthorizedException('User not found');
+
+        // Instead of hard delete, soft delete or change status
+        await this.userRepo.update(userId, { 
+            status: 'blocked' as any,
+            email: `deleted_${Date.now()}_${user.email || ''}`,
+            phone: `deleted_${Date.now()}_${user.phone || ''}` 
+        });
+
+        return { success: true, message: 'Account deleted successfully' };
+    }
+
     private async generateTokens(user: User) {
         const payload = { sub: user.id, role: user.role };
 

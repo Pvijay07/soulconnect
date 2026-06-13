@@ -19,6 +19,7 @@ const transaction_entity_1 = require("../wallet/entities/transaction.entity");
 const listeners_module_1 = require("../listeners/listeners.module");
 const auth_module_1 = require("../auth/auth.module");
 const wallet_module_1 = require("../wallet/wallet.module");
+const chat_module_1 = require("../chat/chat.module");
 let AdminModule = class AdminModule {
 };
 exports.AdminModule = AdminModule;
@@ -29,6 +30,7 @@ exports.AdminModule = AdminModule = __decorate([
             listeners_module_1.ListenersModule,
             auth_module_1.AuthModule,
             wallet_module_1.WalletModule,
+            chat_module_1.ChatModule,
         ],
         providers: [admin_service_1.AdminService],
         controllers: [admin_controller_1.AdminController],

@@ -10,6 +10,7 @@ import { Transaction } from '../wallet/entities/transaction.entity';
 import { ListenersModule } from '../listeners/listeners.module';
 import { AuthModule } from '../auth/auth.module';
 import { WalletModule } from '../wallet/wallet.module';
+import { ChatModule } from '../chat/chat.module';
 
 @Module({
     imports: [
@@ -17,6 +18,7 @@ import { WalletModule } from '../wallet/wallet.module';
         ListenersModule,
         AuthModule,
         WalletModule,
+        ChatModule,
     ],
     providers: [AdminService],
     controllers: [AdminController],

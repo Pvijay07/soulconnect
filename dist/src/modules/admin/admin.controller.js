@@ -28,6 +28,9 @@ let AdminController = class AdminController {
     async getAllUsers(page = 1, limit = 20, search) {
         return { data: await this.adminService.getAllUsers(+page, +limit, search) };
     }
+    async getSupportAgent() {
+        return { data: await this.adminService.getSupportAgent() };
+    }
     async getDashboard() {
         return { data: await this.adminService.getDashboardStats() };
     }
@@ -84,6 +87,15 @@ __decorate([
     __metadata("design:paramtypes", [Object, Object, String]),
     __metadata("design:returntype", Promise)
 ], AdminController.prototype, "getAllUsers", null);
+__decorate([
+    (0, common_1.Get)('support-agent'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiOperation)({ summary: 'Get live support agent id' }),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], AdminController.prototype, "getSupportAgent", null);
 __decorate([
     (0, common_1.Get)('dashboard'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
