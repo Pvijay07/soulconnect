@@ -21,17 +21,17 @@ let ChatController = class ChatController {
     constructor(chatService) {
         this.chatService = chatService;
     }
-    async getConversations(req) {
+    async getConversations(req, isSupport) {
         const userId = req.user.userId;
-        const convs = await this.chatService.getConversations(userId);
+        const convs = await this.chatService.getConversations(userId, isSupport === 'true');
         return {
             status: 'success',
             data: convs,
         };
     }
-    async getOrCreateConversation(req, recipientId) {
+    async getOrCreateConversation(req, recipientId, isSupport) {
         const userId = req.user.userId;
-        const conv = await this.chatService.findOrCreateConversation(userId, recipientId);
+        const conv = await this.chatService.findOrCreateConversation(userId, recipientId, isSupport);
         return {
             status: 'success',
             data: conv,
@@ -56,16 +56,18 @@ exports.ChatController = ChatController;
 __decorate([
     (0, common_1.Get)('conversations'),
     __param(0, (0, common_1.Request)()),
+    __param(1, Query('isSupport')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", [Object, String]),
     __metadata("design:returntype", Promise)
 ], ChatController.prototype, "getConversations", null);
 __decorate([
     (0, common_1.Post)('conversations'),
     __param(0, (0, common_1.Request)()),
     __param(1, (0, common_1.Body)('recipientId')),
+    __param(2, (0, common_1.Body)('isSupport')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, String]),
+    __metadata("design:paramtypes", [Object, String, Boolean]),
     __metadata("design:returntype", Promise)
 ], ChatController.prototype, "getOrCreateConversation", null);
 __decorate([

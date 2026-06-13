@@ -60,6 +60,7 @@ export declare class AdminService {
     getSupportAgent(): Promise<{
         id: string;
     }>;
+    getSupportChats(): Promise<Map<string, Set<string>>>;
     blockExpert(id: string): Promise<{
         success: boolean;
         message: string;

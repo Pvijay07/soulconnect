@@ -19,6 +19,7 @@ let Conversation = class Conversation {
     lastMessageId;
     lastMessageAt;
     isActive;
+    isSupport;
     status;
     initiatedById;
     createdAt;
@@ -50,6 +51,10 @@ __decorate([
     (0, typeorm_1.Column)({ type: 'boolean', default: true }),
     __metadata("design:type", Boolean)
 ], Conversation.prototype, "isActive", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'boolean', default: false }),
+    __metadata("design:type", Boolean)
+], Conversation.prototype, "isSupport", void 0);
 __decorate([
     (0, typeorm_1.Column)({ type: 'varchar', length: 50, default: 'accepted' }),
     __metadata("design:type", String)

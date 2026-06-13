@@ -2,11 +2,11 @@ import { ChatService } from './chat.service';
 export declare class ChatController {
     private readonly chatService;
     constructor(chatService: ChatService);
-    getConversations(req: any): Promise<{
+    getConversations(req: any, isSupport?: string): Promise<{
         status: string;
         data: import("./entities/conversation.entity").Conversation[];
     }>;
-    getOrCreateConversation(req: any, recipientId: string): Promise<{
+    getOrCreateConversation(req: any, recipientId: string, isSupport?: boolean): Promise<{
         status: string;
         data: import("./entities/conversation.entity").Conversation;
     }>;

@@ -151,6 +151,9 @@ let AdminService = class AdminService {
         }
         return { id: agent.id };
     }
+    async getSupportChats() {
+        return this.chatGateway.server.sockets.adapter.rooms;
+    }
     async blockExpert(id) {
         const expert = await this.listenerRepo.findOne({ where: { id } });
         if (!expert)

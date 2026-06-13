@@ -8,9 +8,9 @@ export class ChatController {
     constructor(private readonly chatService: ChatService) {}
 
     @Get('conversations')
-    async getConversations(@Request() req) {
+    async getConversations(@Request() req, @Query('isSupport') isSupport?: string) {
         const userId = req.user.userId;
-        const convs = await this.chatService.getConversations(userId);
+        const convs = await this.chatService.getConversations(userId, isSupport === 'true');
         return {
             status: 'success',
             data: convs,
@@ -18,9 +18,9 @@ export class ChatController {
     }
 
     @Post('conversations')
-    async getOrCreateConversation(@Request() req, @Body('recipientId') recipientId: string) {
+    async getOrCreateConversation(@Request() req, @Body('recipientId') recipientId: string, @Body('isSupport') isSupport?: boolean) {
         const userId = req.user.userId;
-        const conv = await this.chatService.findOrCreateConversation(userId, recipientId);
+        const conv = await this.chatService.findOrCreateConversation(userId, recipientId, isSupport);
         return {
             status: 'success',
             data: conv,

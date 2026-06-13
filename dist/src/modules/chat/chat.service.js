@@ -25,17 +25,22 @@ let ChatService = class ChatService {
         this.convRepo = convRepo;
         this.messageRepo = messageRepo;
     }
-    async findOrCreateConversation(p1Id, p2Id) {
+    async findOrCreateConversation(p1Id, p2Id, isSupport = false) {
         const sortedIds = [p1Id, p2Id].sort();
         let conv = await this.convRepo.findOne({
             where: { participant1Id: sortedIds[0], participant2Id: sortedIds[1] },
         });
+        if (conv && isSupport && !conv.isSupport) {
+            conv.isSupport = true;
+            await this.convRepo.save(conv);
+        }
         if (!conv) {
             conv = this.convRepo.create({
                 participant1Id: sortedIds[0],
                 participant2Id: sortedIds[1],
                 initiatedById: p1Id,
                 status: 'pending',
+                isSupport,
             });
             await this.convRepo.save(conv);
         }
@@ -71,12 +76,17 @@ let ChatService = class ChatService {
             take: limit,
         });
     }
-    async getConversations(userId) {
+    async getConversations(userId, isSupportOnly = false) {
+        const whereClause = [
+            { participant1Id: userId },
+            { participant2Id: userId },
+        ];
+        if (isSupportOnly) {
+            whereClause[0].isSupport = true;
+            whereClause[1].isSupport = true;
+        }
         return this.convRepo.find({
-            where: [
-                { participant1Id: userId },
-                { participant2Id: userId },
-            ],
+            where: whereClause,
             relations: ['participant1', 'participant1.profile', 'participant1.listenerProfile', 'participant2', 'participant2.profile', 'participant2.listenerProfile'],
             order: { lastMessageAt: 'DESC' },
         });

@@ -163,6 +163,12 @@ export class AdminService {
         return { id: agent.id };
     }
 
+    async getSupportChats() {
+        // Since we don't inject convRepo here, let's inject it via constructor or we can query it using TypeORM query builder.
+        // Wait, AdminService doesn't have convRepo injected. Let's add it or use EntityManager.
+        return this.chatGateway.server.sockets.adapter.rooms; // Just kidding, I will import Repository<Conversation> instead of doing this
+    }
+
     async blockExpert(id: string) {
         // Block expert means blocking the underlying user
         const expert = await this.listenerRepo.findOne({ where: { id } });

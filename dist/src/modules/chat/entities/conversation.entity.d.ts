@@ -6,6 +6,7 @@ export declare class Conversation {
     lastMessageId: string;
     lastMessageAt: Date;
     isActive: boolean;
+    isSupport: boolean;
     status: string;
     initiatedById: string;
     createdAt: Date;

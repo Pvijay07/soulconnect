@@ -13,11 +13,16 @@ export class ChatService {
         private readonly messageRepo: Repository<Message>,
     ) { }
 
-    async findOrCreateConversation(p1Id: string, p2Id: string) {
+    async findOrCreateConversation(p1Id: string, p2Id: string, isSupport = false) {
         const sortedIds = [p1Id, p2Id].sort();
         let conv = await this.convRepo.findOne({
             where: { participant1Id: sortedIds[0], participant2Id: sortedIds[1] },
         });
+
+        if (conv && isSupport && !conv.isSupport) {
+            conv.isSupport = true;
+            await this.convRepo.save(conv);
+        }
 
         if (!conv) {
             // p1Id is the sender who initiated it. Let's see if sender is an expert.
@@ -28,6 +33,7 @@ export class ChatService {
                 participant2Id: sortedIds[1],
                 initiatedById: p1Id, // We assume p1Id is the initiator from the context of who calls it. Actually let's change signature if needed.
                 status: 'pending',
+                isSupport,
             });
             await this.convRepo.save(conv);
         }
@@ -70,12 +76,19 @@ export class ChatService {
         });
     }
 
-    async getConversations(userId: string) {
+    async getConversations(userId: string, isSupportOnly: boolean = false) {
+        const whereClause: any[] = [
+            { participant1Id: userId },
+            { participant2Id: userId },
+        ];
+
+        if (isSupportOnly) {
+            whereClause[0].isSupport = true;
+            whereClause[1].isSupport = true;
+        }
+
         return this.convRepo.find({
-            where: [
-                { participant1Id: userId },
-                { participant2Id: userId },
-            ],
+            where: whereClause,
             relations: ['participant1', 'participant1.profile', 'participant1.listenerProfile', 'participant2', 'participant2.profile', 'participant2.listenerProfile'],
             order: { lastMessageAt: 'DESC' },
         });
