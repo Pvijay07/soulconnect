@@ -4,13 +4,15 @@ import { ListenerProfile } from '../listeners/entities/listener-profile.entity';
 import { User } from '../users/entities/user.entity';
 import { Call } from '../calls/entities/call.entity';
 import { Transaction } from '../wallet/entities/transaction.entity';
+import { PayoutService } from '../wallet/payout.service';
 export declare class AdminService {
     private readonly bannerRepo;
     private readonly listenerRepo;
     private readonly userRepo;
     private readonly callRepo;
     private readonly txnRepo;
-    constructor(bannerRepo: Repository<Banner>, listenerRepo: Repository<ListenerProfile>, userRepo: Repository<User>, callRepo: Repository<Call>, txnRepo: Repository<Transaction>);
+    private readonly payoutService;
+    constructor(bannerRepo: Repository<Banner>, listenerRepo: Repository<ListenerProfile>, userRepo: Repository<User>, callRepo: Repository<Call>, txnRepo: Repository<Transaction>, payoutService: PayoutService);
     getActiveBanners(): Promise<Banner[]>;
     getAllBanners(): Promise<Banner[]>;
     createBanner(data: Partial<Banner>): Promise<Banner>;
@@ -52,5 +54,19 @@ export declare class AdminService {
         }[];
         total: number;
         hasNext: boolean;
+    }>;
+    blockExpert(id: string): Promise<{
+        success: boolean;
+        message: string;
+    }>;
+    getAllPayouts(status?: string): Promise<import("../wallet/entities/payout.entity").Payout[]>;
+    processPayout(payoutId: string, status: 'processing' | 'completed' | 'failed', remarks?: string, reference?: string): Promise<import("../wallet/entities/payout.entity").Payout>;
+    sendPromotion(dto: {
+        title: string;
+        body: string;
+        type: 'push' | 'sms';
+    }): Promise<{
+        success: boolean;
+        message: string;
     }>;
 }

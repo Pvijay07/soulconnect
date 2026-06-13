@@ -114,11 +114,27 @@ export class AdminController {
         return { data: await this.adminService.blockExpert(id) };
     }
 
+    @Get('payouts')
+    @UseGuards(JwtAuthGuard)
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Get all payouts' })
+    async getPayouts(@Query('status') status?: string) {
+        return { data: await this.adminService.getAllPayouts(status) };
+    }
+
     @Post('payouts')
     @UseGuards(JwtAuthGuard)
     @ApiBearerAuth()
     @ApiOperation({ summary: 'Process a payout to an expert' })
     async processPayout(@Body() dto: any) {
-        return { data: await this.adminService.processPayout(dto.expertId, dto.amount) };
+        return { data: await this.adminService.processPayout(dto.payoutId, dto.status, dto.remarks, dto.reference) };
+    }
+
+    @Post('promotions')
+    @UseGuards(JwtAuthGuard)
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Send push notification or SMS to users' })
+    async sendPromotion(@Body() dto: { title: string; body: string; type: 'push' | 'sms' }) {
+        return { data: await this.adminService.sendPromotion(dto) };
     }
 }

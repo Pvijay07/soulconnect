@@ -20,16 +20,19 @@ const listener_profile_entity_1 = require("./entities/listener-profile.entity");
 const user_entity_1 = require("../users/entities/user.entity");
 const social_entity_1 = require("../users/entities/social.entity");
 const wallet_entity_1 = require("../wallet/entities/wallet.entity");
+const notifications_service_1 = require("../notifications/notifications.service");
 let ListenersService = class ListenersService {
     listenerRepo;
     userRepo;
     ratingRepo;
     walletRepo;
-    constructor(listenerRepo, userRepo, ratingRepo, walletRepo) {
+    notificationsService;
+    constructor(listenerRepo, userRepo, ratingRepo, walletRepo, notificationsService) {
         this.listenerRepo = listenerRepo;
         this.userRepo = userRepo;
         this.ratingRepo = ratingRepo;
         this.walletRepo = walletRepo;
+        this.notificationsService = notificationsService;
     }
     async apply(userId, data) {
         let profile = await this.listenerRepo.findOne({ where: { userId } });
@@ -236,7 +239,19 @@ let ListenersService = class ListenersService {
             avgRating: lp.avgRating,
             totalRatings: lp.totalRatings,
             currentBalance: wallet ? wallet.balance : 0,
+            isAvailable: lp.isAvailable,
         };
+    }
+    async followListener(followerId, listenerId) {
+        const expert = await this.listenerRepo.findOne({ where: { userId: listenerId } });
+        if (!expert)
+            throw new common_1.NotFoundException('Expert not found');
+        const follower = await this.userRepo.findOne({ where: { id: followerId }, relations: ['profile'] });
+        if (!follower)
+            throw new common_1.NotFoundException('Follower not found');
+        const followerName = follower.profile?.displayName || 'A user';
+        await this.notificationsService.sendPushNotification(listenerId, 'New Follower', `${followerName} started following you!`, { followerId, type: 'new_follower' });
+        return { success: true, message: 'Successfully followed' };
     }
 };
 exports.ListenersService = ListenersService;
@@ -249,6 +264,7 @@ exports.ListenersService = ListenersService = __decorate([
     __metadata("design:paramtypes", [typeorm_2.Repository,
         typeorm_2.Repository,
         typeorm_2.Repository,
-        typeorm_2.Repository])
+        typeorm_2.Repository,
+        notifications_service_1.NotificationsService])
 ], ListenersService);
 //# sourceMappingURL=listeners.service.js.map

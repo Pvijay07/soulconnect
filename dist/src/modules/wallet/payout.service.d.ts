@@ -12,4 +12,5 @@ export declare class PayoutService {
     getPayoutsForListener(userId: string): Promise<Payout[]>;
     getAllPayouts(status?: string): Promise<Payout[]>;
     updatePayoutStatus(payoutId: string, status: 'processing' | 'completed' | 'failed', remarks?: string, reference?: string): Promise<Payout>;
+    processWeeklyPayouts(): Promise<void>;
 }

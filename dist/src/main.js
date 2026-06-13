@@ -4,6 +4,7 @@ const core_1 = require("@nestjs/core");
 const common_1 = require("@nestjs/common");
 const swagger_1 = require("@nestjs/swagger");
 const app_module_1 = require("./app.module");
+const path_1 = require("path");
 async function bootstrap() {
     const logger = new common_1.Logger('Bootstrap');
     const app = await core_1.NestFactory.create(app_module_1.AppModule);
@@ -16,6 +17,9 @@ async function bootstrap() {
         },
     }));
     app.setGlobalPrefix('api');
+    app.useStaticAssets((0, path_1.join)(process.cwd(), 'uploads'), {
+        prefix: '/uploads/',
+    });
     const allowedOrigins = [
         process.env.ADMIN_URL || 'https://admin.soulconnect.in',
         process.env.APP_URL || 'https://app.soulconnect.in',

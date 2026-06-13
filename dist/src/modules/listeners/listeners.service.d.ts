@@ -3,12 +3,14 @@ import { ListenerProfile } from './entities/listener-profile.entity';
 import { User } from '../users/entities/user.entity';
 import { Rating } from '../users/entities/social.entity';
 import { Wallet } from '../wallet/entities/wallet.entity';
+import { NotificationsService } from '../notifications/notifications.service';
 export declare class ListenersService {
     private readonly listenerRepo;
     private readonly userRepo;
     private readonly ratingRepo;
     private readonly walletRepo;
-    constructor(listenerRepo: Repository<ListenerProfile>, userRepo: Repository<User>, ratingRepo: Repository<Rating>, walletRepo: Repository<Wallet>);
+    private readonly notificationsService;
+    constructor(listenerRepo: Repository<ListenerProfile>, userRepo: Repository<User>, ratingRepo: Repository<Rating>, walletRepo: Repository<Wallet>, notificationsService: NotificationsService);
     apply(userId: string, data: any): Promise<ListenerProfile>;
     getAdminPending(page?: number, limit?: number): Promise<{
         items: ListenerProfile[];
@@ -104,5 +106,10 @@ export declare class ListenersService {
         avgRating: number;
         totalRatings: number;
         currentBalance: number;
+        isAvailable: boolean;
+    }>;
+    followListener(followerId: string, listenerId: string): Promise<{
+        success: boolean;
+        message: string;
     }>;
 }

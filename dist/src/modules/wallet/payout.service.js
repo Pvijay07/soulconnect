@@ -20,6 +20,7 @@ const payout_entity_1 = require("./entities/payout.entity");
 const wallet_service_1 = require("./wallet.service");
 const wallet_entity_1 = require("./entities/wallet.entity");
 const transaction_entity_1 = require("./entities/transaction.entity");
+const schedule_1 = require("@nestjs/schedule");
 let PayoutService = class PayoutService {
     payoutRepo;
     walletRepo;
@@ -88,8 +89,34 @@ let PayoutService = class PayoutService {
         }
         return await this.payoutRepo.save(payout);
     }
+    async processWeeklyPayouts() {
+        console.log('Running weekly auto-payouts for experts...');
+        const eligibleWallets = await this.walletRepo.createQueryBuilder('wallet')
+            .innerJoin('wallet.user', 'user')
+            .innerJoin('listener_profiles', 'lp', 'lp."userId" = user.id')
+            .where('wallet.balance >= :minBalance', { minBalance: 500 })
+            .getMany();
+        for (const wallet of eligibleWallets) {
+            try {
+                const amount = Number(wallet.balance);
+                await this.requestPayout(wallet.userId, amount, {
+                    note: 'Auto weekly payout via NEFT/UPI',
+                });
+                console.log(`Auto-payout requested for user ${wallet.userId} amount ₹${amount}`);
+            }
+            catch (err) {
+                console.error(`Failed auto-payout for ${wallet.userId}:`, err);
+            }
+        }
+    }
 };
 exports.PayoutService = PayoutService;
+__decorate([
+    (0, schedule_1.Cron)('0 0 * * 2'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], PayoutService.prototype, "processWeeklyPayouts", null);
 exports.PayoutService = PayoutService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_1.InjectRepository)(payout_entity_1.Payout)),

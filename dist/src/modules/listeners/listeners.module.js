@@ -15,12 +15,13 @@ const listener_profile_entity_1 = require("./entities/listener-profile.entity");
 const user_entity_1 = require("../users/entities/user.entity");
 const social_entity_1 = require("../users/entities/social.entity");
 const wallet_entity_1 = require("../wallet/entities/wallet.entity");
+const notifications_module_1 = require("../notifications/notifications.module");
 let ListenersModule = class ListenersModule {
 };
 exports.ListenersModule = ListenersModule;
 exports.ListenersModule = ListenersModule = __decorate([
     (0, common_1.Module)({
-        imports: [typeorm_1.TypeOrmModule.forFeature([listener_profile_entity_1.ListenerProfile, user_entity_1.User, social_entity_1.Rating, wallet_entity_1.Wallet])],
+        imports: [typeorm_1.TypeOrmModule.forFeature([listener_profile_entity_1.ListenerProfile, user_entity_1.User, social_entity_1.Rating, wallet_entity_1.Wallet]), notifications_module_1.NotificationsModule],
         providers: [listeners_service_1.ListenersService],
         controllers: [listeners_controller_1.ListenersController],
         exports: [listeners_service_1.ListenersService],

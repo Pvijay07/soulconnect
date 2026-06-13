@@ -5,6 +5,7 @@ import { Payout } from './entities/payout.entity';
 import { WalletService } from './wallet.service';
 import { Wallet } from './entities/wallet.entity';
 import { TransactionCategory } from './entities/transaction.entity';
+import { Cron } from '@nestjs/schedule';
 
 @Injectable()
 export class PayoutService {
@@ -96,5 +97,31 @@ export class PayoutService {
         }
 
         return await this.payoutRepo.save(payout);
+    }
+
+    // Run at 00:00 every Tuesday
+    @Cron('0 0 * * 2')
+    async processWeeklyPayouts() {
+        console.log('Running weekly auto-payouts for experts...');
+        
+        // Find all wallets with balance >= 500 (minimum payout threshold)
+        // Only for users with listener profile
+        const eligibleWallets = await this.walletRepo.createQueryBuilder('wallet')
+            .innerJoin('wallet.user', 'user')
+            .innerJoin('listener_profiles', 'lp', 'lp."userId" = user.id')
+            .where('wallet.balance >= :minBalance', { minBalance: 500 })
+            .getMany();
+
+        for (const wallet of eligibleWallets) {
+            try {
+                const amount = Number(wallet.balance);
+                await this.requestPayout(wallet.userId, amount, {
+                    note: 'Auto weekly payout via NEFT/UPI',
+                });
+                console.log(`Auto-payout requested for user ${wallet.userId} amount ₹${amount}`);
+            } catch (err) {
+                console.error(`Failed auto-payout for ${wallet.userId}:`, err);
+            }
+        }
     }
 }

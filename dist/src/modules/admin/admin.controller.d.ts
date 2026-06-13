@@ -70,4 +70,26 @@ export declare class AdminController {
     rejectExpert(id: string, reason: string): Promise<{
         data: import("../listeners/entities/listener-profile.entity").ListenerProfile;
     }>;
+    blockExpert(id: string): Promise<{
+        data: {
+            success: boolean;
+            message: string;
+        };
+    }>;
+    getPayouts(status?: string): Promise<{
+        data: import("../wallet/entities/payout.entity").Payout[];
+    }>;
+    processPayout(dto: any): Promise<{
+        data: import("../wallet/entities/payout.entity").Payout;
+    }>;
+    sendPromotion(dto: {
+        title: string;
+        body: string;
+        type: 'push' | 'sms';
+    }): Promise<{
+        data: {
+            success: boolean;
+            message: string;
+        };
+    }>;
 }

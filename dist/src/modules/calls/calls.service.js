@@ -91,7 +91,9 @@ let CallsService = class CallsService {
         if (!call || call.status === call_entity_1.CallStatus.ENDED)
             return;
         const endedAt = new Date();
-        const durationSecs = Math.floor((endedAt.getTime() - call.startedAt.getTime()) / 1000);
+        const durationSecs = call.startedAt
+            ? Math.floor((endedAt.getTime() - call.startedAt.getTime()) / 1000)
+            : 0;
         const durationMins = durationSecs / 60.0;
         const totalBilled = durationMins * Number(call.ratePerMin);
         const commission = totalBilled * 0.3;
@@ -107,11 +109,13 @@ let CallsService = class CallsService {
         call.listenerEarned = listenerEarned;
         call.endReason = reason;
         await this.callRepo.save(call);
-        await this.walletService.creditWallet(call.calleeId, listenerEarned, transaction_entity_1.TransactionCategory.CALL_EARNING, call.id, `Call earnings: ${durationMins} mins`);
-        await this.lpRepo.increment({ userId: call.calleeId }, 'totalCalls', 1);
-        await this.lpRepo.increment({ userId: call.calleeId }, 'totalMinutes', durationMins);
-        await this.lpRepo.increment({ userId: call.calleeId }, 'totalEarnings', listenerEarned);
-        await this.userRepo.increment({ id: call.callerId }, 'callCount', 1);
+        if (call.startedAt && durationSecs > 0) {
+            await this.walletService.creditWallet(call.calleeId, listenerEarned, transaction_entity_1.TransactionCategory.CALL_EARNING, call.id, `Call earnings: ${durationMins} mins`);
+            await this.lpRepo.increment({ userId: call.calleeId }, 'totalCalls', 1);
+            await this.lpRepo.increment({ userId: call.calleeId }, 'totalMinutes', durationMins);
+            await this.lpRepo.increment({ userId: call.calleeId }, 'totalEarnings', listenerEarned);
+            await this.userRepo.increment({ id: call.callerId }, 'callCount', 1);
+        }
         const lp = await this.lpRepo.findOne({ where: { userId: call.calleeId } });
         if (lp) {
             lp.status = lp.isAvailable ? 'online' : 'offline';

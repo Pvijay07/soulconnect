@@ -38,6 +38,7 @@ export declare class ListenersController {
             avgRating: number;
             totalRatings: number;
             currentBalance: number;
+            isAvailable: boolean;
         };
     }>;
     toggleAvailability(req: any, isAvailable: boolean): Promise<{
@@ -109,5 +110,11 @@ export declare class ListenersController {
     }>;
     reject(id: string, reason: string): Promise<{
         data: import("./entities/listener-profile.entity").ListenerProfile;
+    }>;
+    follow(req: any, id: string): Promise<{
+        data: {
+            success: boolean;
+            message: string;
+        };
     }>;
 }

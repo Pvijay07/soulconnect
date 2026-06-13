@@ -52,6 +52,9 @@ let ListenersController = class ListenersController {
     async reject(id, reason) {
         return { data: await this.listenersService.rejectListener(id, reason) };
     }
+    async follow(req, id) {
+        return { data: await this.listenersService.followListener(req.user.sub, id) };
+    }
 };
 exports.ListenersController = ListenersController;
 __decorate([
@@ -169,6 +172,17 @@ __decorate([
     __metadata("design:paramtypes", [String, String]),
     __metadata("design:returntype", Promise)
 ], ListenersController.prototype, "reject", null);
+__decorate([
+    (0, common_1.Post)(':id/follow'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiOperation)({ summary: 'Follow an expert' }),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String]),
+    __metadata("design:returntype", Promise)
+], ListenersController.prototype, "follow", null);
 exports.ListenersController = ListenersController = __decorate([
     (0, swagger_1.ApiTags)('Listeners'),
     (0, common_1.Controller)('listeners'),

@@ -34,24 +34,34 @@ let ChatService = class ChatService {
             conv = this.convRepo.create({
                 participant1Id: sortedIds[0],
                 participant2Id: sortedIds[1],
+                initiatedById: p1Id,
+                status: 'pending',
             });
             await this.convRepo.save(conv);
         }
         return conv;
     }
-    async saveMessage(convId, senderId, content, type = message_entity_1.MessageType.TEXT) {
+    async saveMessage(convId, senderId, content, type = message_entity_1.MessageType.TEXT, mediaUrl) {
         const message = this.messageRepo.create({
             conversationId: convId,
             senderId,
             content,
             messageType: type,
+            mediaUrl,
         });
         await this.messageRepo.save(message);
         await this.convRepo.update(convId, {
             lastMessageId: message.id,
             lastMessageAt: new Date(),
         });
-        return message;
+        const fullMessage = await this.messageRepo.findOne({
+            where: { id: message.id },
+            relations: ['sender', 'sender.profile', 'sender.listenerProfile'],
+        });
+        return fullMessage || message;
+    }
+    async updateConversationStatus(convId, status) {
+        await this.convRepo.update(convId, { status });
     }
     async getMessages(convId, page = 1, limit = 50) {
         return this.messageRepo.find({
@@ -67,6 +77,7 @@ let ChatService = class ChatService {
                 { participant1Id: userId },
                 { participant2Id: userId },
             ],
+            relations: ['participant1', 'participant1.profile', 'participant1.listenerProfile', 'participant2', 'participant2.profile', 'participant2.listenerProfile'],
             order: { lastMessageAt: 'DESC' },
         });
     }

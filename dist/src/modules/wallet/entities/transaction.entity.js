@@ -23,6 +23,8 @@ var TransactionCategory;
     TransactionCategory["RECHARGE"] = "recharge";
     TransactionCategory["CALL_DEBIT"] = "call_debit";
     TransactionCategory["CALL_EARNING"] = "call_earning";
+    TransactionCategory["CHAT_DEBIT"] = "chat_debit";
+    TransactionCategory["CHAT_EARNING"] = "chat_earning";
     TransactionCategory["COMMISSION"] = "commission";
     TransactionCategory["WITHDRAWAL"] = "withdrawal";
     TransactionCategory["REFUND"] = "refund";

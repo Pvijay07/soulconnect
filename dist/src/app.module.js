@@ -41,6 +41,8 @@ const referral_module_1 = require("./modules/referral/referral.module");
 const analytics_module_1 = require("./modules/analytics/analytics.module");
 const crm_module_1 = require("./modules/crm/crm.module");
 const admin_module_1 = require("./modules/admin/admin.module");
+const upload_module_1 = require("./modules/upload/upload.module");
+const schedule_1 = require("@nestjs/schedule");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -89,6 +91,8 @@ exports.AppModule = AppModule = __decorate([
             analytics_module_1.AnalyticsModule,
             crm_module_1.CRMModule,
             admin_module_1.AdminModule,
+            upload_module_1.UploadModule,
+            schedule_1.ScheduleModule.forRoot(),
         ],
     })
 ], AppModule);

@@ -33,6 +33,17 @@ export declare class AuthService {
         user: {
             id: string;
             email: string;
+            role: UserRole;
+            phone?: undefined;
+            isAnonymous?: undefined;
+        };
+    } | {
+        accessToken: string;
+        refreshToken: string;
+        expiresIn: number;
+        user: {
+            id: string;
+            email: string;
             phone: string;
             role: UserRole;
             isAnonymous: boolean;

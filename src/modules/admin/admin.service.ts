@@ -6,6 +6,7 @@ import { ListenerProfile } from '../listeners/entities/listener-profile.entity';
 import { User } from '../users/entities/user.entity';
 import { Call } from '../calls/entities/call.entity';
 import { Transaction, TransactionType, TransactionCategory } from '../wallet/entities/transaction.entity';
+import { PayoutService } from '../wallet/payout.service';
 
 @Injectable()
 export class AdminService {
@@ -20,6 +21,7 @@ export class AdminService {
         private readonly callRepo: Repository<Call>,
         @InjectRepository(Transaction)
         private readonly txnRepo: Repository<Transaction>,
+        private readonly payoutService: PayoutService,
     ) { }
 
     // ─── Banner CRUD ───────────────────────────────────────────
@@ -156,31 +158,16 @@ export class AdminService {
         return { success: true, message: 'Expert blocked successfully' };
     }
 
-    async processPayout(expertId: string, amount: number) {
-        const expert = await this.listenerRepo.findOne({ where: { id: expertId } });
-        if (!expert) throw new NotFoundException('Expert not found');
+    async getAllPayouts(status?: string) {
+        return this.payoutService.getAllPayouts(status);
+    }
 
-        const wallet = await this.txnRepo.manager.findOne('Wallet', { where: { userId: expert.userId } });
-        if (!wallet) throw new NotFoundException('Wallet not found');
+    async processPayout(payoutId: string, status: 'processing' | 'completed' | 'failed', remarks?: string, reference?: string) {
+        return this.payoutService.updatePayoutStatus(payoutId, status, remarks, reference);
+    }
 
-        if ((wallet as any).balance < amount) {
-            throw new Error('Insufficient balance for payout');
-        }
-
-        // Deduct balance and record transaction
-        await this.txnRepo.manager.transaction(async em => {
-            await em.decrement('Wallet', { userId: expert.userId }, 'balance', amount);
-            const txn = this.txnRepo.create({
-                walletId: (wallet as any).id,
-                amount: amount,
-                type: TransactionType.DEBIT,
-                category: TransactionCategory.WITHDRAWAL,
-                description: 'Admin processed payout',
-                referenceId: `payout-${Date.now()}`,
-            });
-            await em.save(txn);
-        });
-
-        return { success: true, message: 'Payout processed successfully' };
+    async sendPromotion(dto: { title: string; body: string; type: 'push' | 'sms' }) {
+        console.log(`[PROMOTION] Sending ${dto.type} to all users: ${dto.title} - ${dto.body}`);
+        return { success: true, message: `Successfully sent ${dto.type} to users` };
     }
 }

@@ -19,6 +19,8 @@ let Conversation = class Conversation {
     lastMessageId;
     lastMessageAt;
     isActive;
+    status;
+    initiatedById;
     createdAt;
     participant1;
     participant2;
@@ -48,6 +50,14 @@ __decorate([
     (0, typeorm_1.Column)({ type: 'boolean', default: true }),
     __metadata("design:type", Boolean)
 ], Conversation.prototype, "isActive", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'varchar', length: 50, default: 'accepted' }),
+    __metadata("design:type", String)
+], Conversation.prototype, "status", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'uuid', nullable: true }),
+    __metadata("design:type", String)
+], Conversation.prototype, "initiatedById", void 0);
 __decorate([
     (0, typeorm_1.CreateDateColumn)({ type: 'timestamptz' }),
     __metadata("design:type", Date)

@@ -58,6 +58,18 @@ let AdminController = class AdminController {
     async rejectExpert(id, reason) {
         return { data: await this.listenersService.rejectListener(id, reason || 'Application rejected by admin') };
     }
+    async blockExpert(id) {
+        return { data: await this.adminService.blockExpert(id) };
+    }
+    async getPayouts(status) {
+        return { data: await this.adminService.getAllPayouts(status) };
+    }
+    async processPayout(dto) {
+        return { data: await this.adminService.processPayout(dto.payoutId, dto.status, dto.remarks, dto.reference) };
+    }
+    async sendPromotion(dto) {
+        return { data: await this.adminService.sendPromotion(dto) };
+    }
 };
 exports.AdminController = AdminController;
 __decorate([
@@ -171,6 +183,46 @@ __decorate([
     __metadata("design:paramtypes", [String, String]),
     __metadata("design:returntype", Promise)
 ], AdminController.prototype, "rejectExpert", null);
+__decorate([
+    (0, common_1.Post)('experts/:id/block'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiOperation)({ summary: 'Block an expert' }),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], AdminController.prototype, "blockExpert", null);
+__decorate([
+    (0, common_1.Get)('payouts'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiOperation)({ summary: 'Get all payouts' }),
+    __param(0, (0, common_1.Query)('status')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], AdminController.prototype, "getPayouts", null);
+__decorate([
+    (0, common_1.Post)('payouts'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiOperation)({ summary: 'Process a payout to an expert' }),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], AdminController.prototype, "processPayout", null);
+__decorate([
+    (0, common_1.Post)('promotions'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiOperation)({ summary: 'Send push notification or SMS to users' }),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], AdminController.prototype, "sendPromotion", null);
 exports.AdminController = AdminController = __decorate([
     (0, swagger_1.ApiTags)('Admin'),
     (0, common_1.Controller)('admin'),

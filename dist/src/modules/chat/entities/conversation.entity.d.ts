@@ -6,6 +6,8 @@ export declare class Conversation {
     lastMessageId: string;
     lastMessageAt: Date;
     isActive: boolean;
+    status: string;
+    initiatedById: string;
     createdAt: Date;
     participant1: User;
     participant2: User;

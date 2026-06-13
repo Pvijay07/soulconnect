@@ -65,17 +65,19 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @SubscribeMessage('message:send')
     async handleMessage(
         @ConnectedSocket() client: Socket,
-        @MessageBody() data: { recipientId: string; content: string; type?: MessageType },
+        @MessageBody() data: { recipientId: string; content?: string; type?: MessageType; mediaUrl?: string },
     ) {
         const senderId = client.data.userId;
         const senderRole = client.data.role;
-        const { recipientId, content, type } = data;
+        const { recipientId, content, type, mediaUrl } = data;
 
-        // AI MODERATION CHECK
-        const modResult = await this.moderationService.checkContent(content);
-        if (modResult.isFlagged) {
-            await this.moderationService.flagUserForReview(senderId, 'TOXIC_CONTENT', content);
-            return { status: 'error', reason: 'Content flagged by AI moderation' };
+        // AI MODERATION CHECK (skip for media unless we add OCR/Audio transcription later)
+        if (content) {
+            const modResult = await this.moderationService.checkContent(content);
+            if (modResult.isFlagged) {
+                await this.moderationService.flagUserForReview(senderId, 'TOXIC_CONTENT', content);
+                return { status: 'error', reason: 'Content flagged by AI moderation' };
+            }
         }
 
         const conv = await this.chatService.findOrCreateConversation(senderId, recipientId);
@@ -90,7 +92,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
             }
         }
 
-        const message = await this.chatService.saveMessage(conv.id, senderId, content, type);
+        const message = await this.chatService.saveMessage(conv.id, senderId, content, type, mediaUrl);
 
         // Emit to both users
         this.server.to(`user_${senderId}`).emit('message:new', message);

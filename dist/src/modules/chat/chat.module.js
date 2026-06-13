@@ -16,6 +16,7 @@ const message_entity_1 = require("./entities/message.entity");
 const chat_controller_1 = require("./chat.controller");
 const auth_module_1 = require("../auth/auth.module");
 const moderation_module_1 = require("../moderation/moderation.module");
+const wallet_module_1 = require("../wallet/wallet.module");
 let ChatModule = class ChatModule {
 };
 exports.ChatModule = ChatModule;
@@ -25,6 +26,7 @@ exports.ChatModule = ChatModule = __decorate([
             typeorm_1.TypeOrmModule.forFeature([conversation_entity_1.Conversation, message_entity_1.Message]),
             auth_module_1.AuthModule,
             moderation_module_1.ModerationModule,
+            wallet_module_1.WalletModule,
         ],
         providers: [chat_service_1.ChatService, chat_gateway_1.ChatGateway],
         controllers: [chat_controller_1.ChatController],

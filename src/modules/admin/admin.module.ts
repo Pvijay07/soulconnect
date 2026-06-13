@@ -9,12 +9,14 @@ import { Call } from '../calls/entities/call.entity';
 import { Transaction } from '../wallet/entities/transaction.entity';
 import { ListenersModule } from '../listeners/listeners.module';
 import { AuthModule } from '../auth/auth.module';
+import { WalletModule } from '../wallet/wallet.module';
 
 @Module({
     imports: [
         TypeOrmModule.forFeature([Banner, ListenerProfile, User, Call, Transaction]),
         ListenersModule,
         AuthModule,
+        WalletModule,
     ],
     providers: [AdminService],
     controllers: [AdminController],

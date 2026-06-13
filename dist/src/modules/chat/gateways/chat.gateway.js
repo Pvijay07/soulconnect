@@ -19,18 +19,22 @@ const jwt_1 = require("@nestjs/jwt");
 const config_1 = require("@nestjs/config");
 const chat_service_1 = require("../chat.service");
 const moderation_service_1 = require("../../moderation/moderation.service");
+const wallet_service_1 = require("../../wallet/wallet.service");
+const transaction_entity_1 = require("../../wallet/entities/transaction.entity");
 let ChatGateway = class ChatGateway {
     jwtService;
     configService;
     chatService;
     moderationService;
+    walletService;
     server;
     connectedUsers = new Map();
-    constructor(jwtService, configService, chatService, moderationService) {
+    constructor(jwtService, configService, chatService, moderationService, walletService) {
         this.jwtService = jwtService;
         this.configService = configService;
         this.chatService = chatService;
         this.moderationService = moderationService;
+        this.walletService = walletService;
     }
     async handleConnection(client) {
         try {
@@ -40,6 +44,7 @@ let ChatGateway = class ChatGateway {
             });
             const userId = payload.sub;
             client.data.userId = userId;
+            client.data.role = payload.role;
             this.connectedUsers.set(userId, client.id);
             console.log(`User connected: ${userId}`);
             client.join(`user_${userId}`);
@@ -57,14 +62,26 @@ let ChatGateway = class ChatGateway {
     }
     async handleMessage(client, data) {
         const senderId = client.data.userId;
-        const { recipientId, content, type } = data;
-        const modResult = await this.moderationService.checkContent(content);
-        if (modResult.isFlagged) {
-            await this.moderationService.flagUserForReview(senderId, 'TOXIC_CONTENT', content);
-            return { status: 'error', reason: 'Content flagged by AI moderation' };
+        const senderRole = client.data.role;
+        const { recipientId, content, type, mediaUrl } = data;
+        if (content) {
+            const modResult = await this.moderationService.checkContent(content);
+            if (modResult.isFlagged) {
+                await this.moderationService.flagUserForReview(senderId, 'TOXIC_CONTENT', content);
+                return { status: 'error', reason: 'Content flagged by AI moderation' };
+            }
         }
         const conv = await this.chatService.findOrCreateConversation(senderId, recipientId);
-        const message = await this.chatService.saveMessage(conv.id, senderId, content, type);
+        if (senderRole === 'user') {
+            try {
+                await this.walletService.debitWallet(senderId, 3, transaction_entity_1.TransactionCategory.CHAT_DEBIT, conv.id, 'Chat message cost');
+                await this.walletService.creditWallet(recipientId, 3, transaction_entity_1.TransactionCategory.CHAT_EARNING, conv.id, 'Chat message earning');
+            }
+            catch (e) {
+                return { status: 'error', reason: 'Insufficient balance. Please recharge your wallet.' };
+            }
+        }
+        const message = await this.chatService.saveMessage(conv.id, senderId, content, type, mediaUrl);
         this.server.to(`user_${senderId}`).emit('message:new', message);
         this.server.to(`user_${recipientId}`).emit('message:new', message);
         return { status: 'ok', messageId: message.id };
@@ -106,6 +123,7 @@ exports.ChatGateway = ChatGateway = __decorate([
     __metadata("design:paramtypes", [jwt_1.JwtService,
         config_1.ConfigService,
         chat_service_1.ChatService,
-        moderation_service_1.ModerationService])
+        moderation_service_1.ModerationService,
+        wallet_service_1.WalletService])
 ], ChatGateway);
 //# sourceMappingURL=chat.gateway.js.map

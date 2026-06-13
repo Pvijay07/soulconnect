@@ -18,6 +18,7 @@ const call_entity_1 = require("../calls/entities/call.entity");
 const transaction_entity_1 = require("../wallet/entities/transaction.entity");
 const listeners_module_1 = require("../listeners/listeners.module");
 const auth_module_1 = require("../auth/auth.module");
+const wallet_module_1 = require("../wallet/wallet.module");
 let AdminModule = class AdminModule {
 };
 exports.AdminModule = AdminModule;
@@ -27,6 +28,7 @@ exports.AdminModule = AdminModule = __decorate([
             typeorm_1.TypeOrmModule.forFeature([banner_entity_1.Banner, listener_profile_entity_1.ListenerProfile, user_entity_1.User, call_entity_1.Call, transaction_entity_1.Transaction]),
             listeners_module_1.ListenersModule,
             auth_module_1.AuthModule,
+            wallet_module_1.WalletModule,
         ],
         providers: [admin_service_1.AdminService],
         controllers: [admin_controller_1.AdminController],

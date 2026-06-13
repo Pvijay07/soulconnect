@@ -21,18 +21,21 @@ const listener_profile_entity_1 = require("../listeners/entities/listener-profil
 const user_entity_1 = require("../users/entities/user.entity");
 const call_entity_1 = require("../calls/entities/call.entity");
 const transaction_entity_1 = require("../wallet/entities/transaction.entity");
+const payout_service_1 = require("../wallet/payout.service");
 let AdminService = class AdminService {
     bannerRepo;
     listenerRepo;
     userRepo;
     callRepo;
     txnRepo;
-    constructor(bannerRepo, listenerRepo, userRepo, callRepo, txnRepo) {
+    payoutService;
+    constructor(bannerRepo, listenerRepo, userRepo, callRepo, txnRepo, payoutService) {
         this.bannerRepo = bannerRepo;
         this.listenerRepo = listenerRepo;
         this.userRepo = userRepo;
         this.callRepo = callRepo;
         this.txnRepo = txnRepo;
+        this.payoutService = payoutService;
     }
     async getActiveBanners() {
         const now = new Date();
@@ -135,6 +138,23 @@ let AdminService = class AdminService {
             hasNext: page * limit < total,
         };
     }
+    async blockExpert(id) {
+        const expert = await this.listenerRepo.findOne({ where: { id } });
+        if (!expert)
+            throw new common_1.NotFoundException('Expert not found');
+        await this.userRepo.update(expert.userId, { status: 'blocked' });
+        return { success: true, message: 'Expert blocked successfully' };
+    }
+    async getAllPayouts(status) {
+        return this.payoutService.getAllPayouts(status);
+    }
+    async processPayout(payoutId, status, remarks, reference) {
+        return this.payoutService.updatePayoutStatus(payoutId, status, remarks, reference);
+    }
+    async sendPromotion(dto) {
+        console.log(`[PROMOTION] Sending ${dto.type} to all users: ${dto.title} - ${dto.body}`);
+        return { success: true, message: `Successfully sent ${dto.type} to users` };
+    }
 };
 exports.AdminService = AdminService;
 exports.AdminService = AdminService = __decorate([
@@ -148,6 +168,7 @@ exports.AdminService = AdminService = __decorate([
         typeorm_2.Repository,
         typeorm_2.Repository,
         typeorm_2.Repository,
-        typeorm_2.Repository])
+        typeorm_2.Repository,
+        payout_service_1.PayoutService])
 ], AdminService);
 //# sourceMappingURL=admin.service.js.map

@@ -5,20 +5,23 @@ import { ConfigService } from '@nestjs/config';
 import { ChatService } from '../chat.service';
 import { ModerationService } from '../../moderation/moderation.service';
 import { MessageType } from '../entities/message.entity';
+import { WalletService } from '../../wallet/wallet.service';
 export declare class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     private readonly jwtService;
     private readonly configService;
     private readonly chatService;
     private readonly moderationService;
+    private readonly walletService;
     server: Server;
     private connectedUsers;
-    constructor(jwtService: JwtService, configService: ConfigService, chatService: ChatService, moderationService: ModerationService);
+    constructor(jwtService: JwtService, configService: ConfigService, chatService: ChatService, moderationService: ModerationService, walletService: WalletService);
     handleConnection(client: Socket): Promise<void>;
     handleDisconnect(client: Socket): void;
     handleMessage(client: Socket, data: {
         recipientId: string;
-        content: string;
+        content?: string;
         type?: MessageType;
+        mediaUrl?: string;
     }): Promise<{
         status: string;
         reason: string;

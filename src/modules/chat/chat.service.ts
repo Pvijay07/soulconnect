@@ -34,12 +34,13 @@ export class ChatService {
         return conv;
     }
 
-    async saveMessage(convId: string, senderId: string, content: string, type: MessageType = MessageType.TEXT) {
+    async saveMessage(convId: string, senderId: string, content?: string, type: MessageType = MessageType.TEXT, mediaUrl?: string) {
         const message = this.messageRepo.create({
             conversationId: convId,
             senderId,
             content,
             messageType: type,
+            mediaUrl,
         });
         await this.messageRepo.save(message);
 

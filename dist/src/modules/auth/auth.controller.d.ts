@@ -25,6 +25,17 @@ export declare class AuthController {
             user: {
                 id: string;
                 email: string;
+                role: import("../users/entities/user.entity").UserRole;
+                phone?: undefined;
+                isAnonymous?: undefined;
+            };
+        } | {
+            accessToken: string;
+            refreshToken: string;
+            expiresIn: number;
+            user: {
+                id: string;
+                email: string;
                 phone: string;
                 role: import("../users/entities/user.entity").UserRole;
                 isAnonymous: boolean;

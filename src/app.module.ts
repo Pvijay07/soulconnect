@@ -34,6 +34,8 @@ import { ReferralModule } from './modules/referral/referral.module';
 import { AnalyticsModule } from './modules/analytics/analytics.module';
 import { CRMModule } from './modules/crm/crm.module';
 import { AdminModule } from './modules/admin/admin.module';
+import { UploadModule } from './modules/upload/upload.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
@@ -79,6 +81,8 @@ import { AdminModule } from './modules/admin/admin.module';
     AnalyticsModule,
     CRMModule,
     AdminModule,
+    UploadModule,
+    ScheduleModule.forRoot(),
   ],
 })
 export class AppModule { }
