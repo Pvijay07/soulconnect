@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Conversation } from './entities/conversation.entity';
-import { Message, MessageType } from './entities/message.entity';
+import { Message, MessageType, MessageStatus } from './entities/message.entity';
 
 @Injectable()
 export class ChatService {
@@ -40,31 +40,40 @@ export class ChatService {
         return conv;
     }
 
-    async saveMessage(convId: string, senderId: string, content?: string, type: MessageType = MessageType.TEXT, mediaUrl?: string) {
-        const message = this.messageRepo.create({
-            conversationId: convId,
+    async saveMessage(conversationId: string, senderId: string, content?: string, type?: MessageType, mediaUrl?: string) {
+        const msg = this.messageRepo.create({
+            conversationId,
             senderId,
             content,
-            messageType: type,
+            messageType: type || MessageType.TEXT,
             mediaUrl,
         });
-        await this.messageRepo.save(message);
-
-        await this.convRepo.update(convId, {
-            lastMessageId: message.id,
-            lastMessageAt: new Date(),
+        const savedMsg = await this.messageRepo.save(msg);
+        
+        // Update conversation lastMessageAt
+        await this.convRepo.update(conversationId, {
+            lastMessageAt: savedMsg.createdAt,
+            lastMessageId: savedMsg.id,
         });
 
         const fullMessage = await this.messageRepo.findOne({
-            where: { id: message.id },
+            where: { id: savedMsg.id },
             relations: ['sender', 'sender.profile', 'sender.listenerProfile'],
         });
 
-        return fullMessage || message;
+        return fullMessage || savedMsg;
+    }
+
+    async markMessageAsRead(messageId: string) {
+        await this.messageRepo.update(messageId, { status: MessageStatus.READ });
     }
 
     async updateConversationStatus(convId: string, status: string) {
         await this.convRepo.update(convId, { status });
+    }
+
+    async closeConversation(convId: string) {
+        await this.convRepo.update(convId, { isActive: false, status: 'closed' });
     }
 
     async getMessages(convId: string, page = 1, limit = 50) {

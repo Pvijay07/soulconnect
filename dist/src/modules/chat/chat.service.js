@@ -46,27 +46,33 @@ let ChatService = class ChatService {
         }
         return conv;
     }
-    async saveMessage(convId, senderId, content, type = message_entity_1.MessageType.TEXT, mediaUrl) {
-        const message = this.messageRepo.create({
-            conversationId: convId,
+    async saveMessage(conversationId, senderId, content, type, mediaUrl) {
+        const msg = this.messageRepo.create({
+            conversationId,
             senderId,
             content,
-            messageType: type,
+            messageType: type || message_entity_1.MessageType.TEXT,
             mediaUrl,
         });
-        await this.messageRepo.save(message);
-        await this.convRepo.update(convId, {
-            lastMessageId: message.id,
-            lastMessageAt: new Date(),
+        const savedMsg = await this.messageRepo.save(msg);
+        await this.convRepo.update(conversationId, {
+            lastMessageAt: savedMsg.createdAt,
+            lastMessageId: savedMsg.id,
         });
         const fullMessage = await this.messageRepo.findOne({
-            where: { id: message.id },
+            where: { id: savedMsg.id },
             relations: ['sender', 'sender.profile', 'sender.listenerProfile'],
         });
-        return fullMessage || message;
+        return fullMessage || savedMsg;
+    }
+    async markMessageAsRead(messageId) {
+        await this.messageRepo.update(messageId, { status: message_entity_1.MessageStatus.READ });
     }
     async updateConversationStatus(convId, status) {
         await this.convRepo.update(convId, { status });
+    }
+    async closeConversation(convId) {
+        await this.convRepo.update(convId, { isActive: false, status: 'closed' });
     }
     async getMessages(convId, page = 1, limit = 50) {
         return this.messageRepo.find({

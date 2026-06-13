@@ -44,4 +44,13 @@ export class ChatController {
             message: 'Conversation status updated'
         };
     }
+
+    @Patch('conversations/:convId/close')
+    async closeConversation(@Request() req, @Param('convId') convId: string) {
+        await this.chatService.closeConversation(convId);
+        return {
+            status: 'success',
+            message: 'Conversation closed'
+        };
+    }
 }

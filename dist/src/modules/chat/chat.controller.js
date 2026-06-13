@@ -51,6 +51,13 @@ let ChatController = class ChatController {
             message: 'Conversation status updated'
         };
     }
+    async closeConversation(req, convId) {
+        await this.chatService.closeConversation(convId);
+        return {
+            status: 'success',
+            message: 'Conversation closed'
+        };
+    }
 };
 exports.ChatController = ChatController;
 __decorate([
@@ -87,6 +94,14 @@ __decorate([
     __metadata("design:paramtypes", [Object, String, String]),
     __metadata("design:returntype", Promise)
 ], ChatController.prototype, "updateStatus", null);
+__decorate([
+    (0, common_1.Patch)('conversations/:convId/close'),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Param)('convId')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String]),
+    __metadata("design:returntype", Promise)
+], ChatController.prototype, "closeConversation", null);
 exports.ChatController = ChatController = __decorate([
     (0, common_1.Controller)('chat'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),

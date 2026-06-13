@@ -38,4 +38,8 @@ export declare class ChatGateway implements OnGatewayConnection, OnGatewayDiscon
         recipientId: string;
         isTyping: boolean;
     }): void;
+    handleMessageRead(client: Socket, data: {
+        messageId: string;
+        senderId: string;
+    }): Promise<void>;
 }

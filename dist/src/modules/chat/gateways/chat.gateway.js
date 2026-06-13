@@ -101,6 +101,15 @@ let ChatGateway = class ChatGateway {
             isTyping: data.isTyping,
         });
     }
+    async handleMessageRead(client, data) {
+        const readerId = client.data.userId;
+        const { messageId, senderId } = data;
+        await this.chatService.markMessageAsRead(messageId);
+        this.server.to(`user_${senderId}`).emit('message:read_update', {
+            messageId,
+            readerId,
+        });
+    }
 };
 exports.ChatGateway = ChatGateway;
 __decorate([
@@ -123,6 +132,14 @@ __decorate([
     __metadata("design:paramtypes", [socket_io_1.Socket, Object]),
     __metadata("design:returntype", void 0)
 ], ChatGateway.prototype, "handleTyping", null);
+__decorate([
+    (0, websockets_1.SubscribeMessage)('message:read'),
+    __param(0, (0, websockets_1.ConnectedSocket)()),
+    __param(1, (0, websockets_1.MessageBody)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [socket_io_1.Socket, Object]),
+    __metadata("design:returntype", Promise)
+], ChatGateway.prototype, "handleMessageRead", null);
 exports.ChatGateway = ChatGateway = __decorate([
     (0, websockets_1.WebSocketGateway)({
         cors: { origin: '*' },

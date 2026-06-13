@@ -18,4 +18,8 @@ export declare class ChatController {
         status: string;
         message: string;
     }>;
+    closeConversation(req: any, convId: string): Promise<{
+        status: string;
+        message: string;
+    }>;
 }
